@@ -11,6 +11,9 @@
 		5DF8093C2B21144200036D23 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8093B2B21144200036D23 /* ContentView.swift */; };
 		5DF8093E2B21144400036D23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DF8093D2B21144400036D23 /* Assets.xcassets */; };
 		5DF809422B21144400036D23 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DF809412B21144400036D23 /* Preview Assets.xcassets */; };
+		5DF8094A2B2114CA00036D23 /* MCSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809492B2114CA00036D23 /* MCSessionManager.swift */; };
+		5DF8094F2B2121F200036D23 /* MCSessionDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8094E2B2121F200036D23 /* MCSessionDetails.swift */; };
+		5DF809552B2135F700036D23 /* MCUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809542B2135F700036D23 /* MCUser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +23,10 @@
 		5DF8093D2B21144400036D23 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5DF8093F2B21144400036D23 /* ProximityShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ProximityShare.entitlements; sourceTree = "<group>"; };
 		5DF809412B21144400036D23 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		5DF809492B2114CA00036D23 /* MCSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCSessionManager.swift; sourceTree = "<group>"; };
+		5DF8094E2B2121F200036D23 /* MCSessionDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCSessionDetails.swift; sourceTree = "<group>"; };
+		5DF809532B2133DE00036D23 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5DF809542B2135F700036D23 /* MCUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCUser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,8 +59,10 @@
 		5DF809382B21144200036D23 /* ProximityShare */ = {
 			isa = PBXGroup;
 			children = (
+				5DF809522B21285400036D23 /* Connectivity */,
 				5DF809392B21144200036D23 /* ProximityShareApp.swift */,
 				5DF8093B2B21144200036D23 /* ContentView.swift */,
+				5DF809532B2133DE00036D23 /* Info.plist */,
 				5DF8093D2B21144400036D23 /* Assets.xcassets */,
 				5DF8093F2B21144400036D23 /* ProximityShare.entitlements */,
 				5DF809402B21144400036D23 /* Preview Content */,
@@ -67,6 +76,32 @@
 				5DF809412B21144400036D23 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		5DF809482B21148A00036D23 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809492B2114CA00036D23 /* MCSessionManager.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		5DF8094B2B211E9E00036D23 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5DF8094E2B2121F200036D23 /* MCSessionDetails.swift */,
+				5DF809542B2135F700036D23 /* MCUser.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		5DF809522B21285400036D23 /* Connectivity */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809482B21148A00036D23 /* Helpers */,
+				5DF8094B2B211E9E00036D23 /* Models */,
+			);
+			path = Connectivity;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,6 +176,9 @@
 			files = (
 				5DF8093C2B21144200036D23 /* ContentView.swift in Sources */,
 				5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */,
+				5DF8094A2B2114CA00036D23 /* MCSessionManager.swift in Sources */,
+				5DF809552B2135F700036D23 /* MCUser.swift in Sources */,
+				5DF8094F2B2121F200036D23 /* MCSessionDetails.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +312,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ProximityShare/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -312,6 +351,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ProximityShare/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

@@ -8,12 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    private var sessionManager = MCSessionManager.shared
+    
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Button("Host") {
+                self.sessionManager.startAdvertising(user: MCUser(id: UUID().uuidString, name: "Host", aboutMe: "About host"), sessionName: "Session")
+            }
+            Button("Join") {
+                self.sessionManager.startBrowsing(user: MCUser(id: UUID().uuidString, name: "Peer", aboutMe: "About peer"))
+            }
         }
         .padding()
     }
