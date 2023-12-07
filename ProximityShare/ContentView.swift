@@ -8,21 +8,31 @@
 import SwiftUI
 
 struct ContentView: View {
-    private var sessionManager = MCSessionManager.shared
+    
+    
+    @EnvironmentObject var preferences: Preferences
+    @State var selectedTab = 1
     
     var body: some View {
         VStack {
-            Button("Host") {
-                self.sessionManager.startAdvertising(user: MCUser(id: UUID().uuidString, name: "Host", aboutMe: "About host"), sessionName: "Session")
-            }
-            Button("Join") {
-                self.sessionManager.startBrowsing(user: MCUser(id: UUID().uuidString, name: "Peer", aboutMe: "About peer"))
+            if preferences.userDisplayName.isEmpty {
+                ProfileView(isFirstTimeLaunch: true)
+            } else {
+                TabView(selection: $selectedTab) {
+                    Text("Sessions View").tabItem {
+                        Label("Sessions", systemImage: "dot.radiowaves.left.and.right")
+                    }.tag(1)
+                    
+                    SettingsView().tabItem {
+                        Label("Settings", systemImage: "gear")
+                    }.tag(2)
+                }
             }
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(Preferences())
 }

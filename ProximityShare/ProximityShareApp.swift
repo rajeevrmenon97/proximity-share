@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct ProximityShareApp: App {
+    @StateObject private var preferences = Preferences()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(preferences.isDarkMode ? .dark : .light)
+                .environmentObject(self.preferences)
         }
     }
 }
