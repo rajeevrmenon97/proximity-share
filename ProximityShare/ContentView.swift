@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    
-    
     @EnvironmentObject var preferences: Preferences
     @State var selectedTab = 1
     
@@ -19,7 +17,8 @@ struct ContentView: View {
                 ProfileView(isFirstTimeLaunch: true)
             } else {
                 TabView(selection: $selectedTab) {
-                    Text("Sessions View").tabItem {
+                    HomeView()
+                        .tabItem {
                         Label("Sessions", systemImage: "dot.radiowaves.left.and.right")
                     }.tag(1)
                     
@@ -33,6 +32,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-        .environmentObject(Preferences())
+    contentViewPreview
 }

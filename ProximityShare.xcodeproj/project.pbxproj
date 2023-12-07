@@ -18,6 +18,13 @@
 		5DF8095E2B2139C900036D23 /* DisplayPicture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8095D2B2139C900036D23 /* DisplayPicture.swift */; };
 		5DF809602B2139F700036D23 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8095F2B2139F700036D23 /* SettingsView.swift */; };
 		5DF809622B213ADF00036D23 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809612B213ADF00036D23 /* ProfileView.swift */; };
+		5DF809682B21476500036D23 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809672B21476500036D23 /* HomeView.swift */; };
+		5DF8096A2B21477400036D23 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809692B21477400036D23 /* SessionViewModel.swift */; };
+		5DF8098B2B21A5FB00036D23 /* SchemaV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8098A2B21A5FB00036D23 /* SchemaV1.swift */; };
+		5DF8098D2B21AB9700036D23 /* PreviewDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8098C2B21AB9700036D23 /* PreviewDependencies.swift */; };
+		5DF8098F2B2218B400036D23 /* SessionSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8098E2B2218B400036D23 /* SessionSearchView.swift */; };
+		5DF809912B2219E700036D23 /* MCEventUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809902B2219E700036D23 /* MCEventUpdate.swift */; };
+		5DF809942B22256700036D23 /* SessionListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809932B22256700036D23 /* SessionListItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +42,13 @@
 		5DF8095D2B2139C900036D23 /* DisplayPicture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayPicture.swift; sourceTree = "<group>"; };
 		5DF8095F2B2139F700036D23 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		5DF809612B213ADF00036D23 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		5DF809672B21476500036D23 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		5DF809692B21477400036D23 /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
+		5DF8098A2B21A5FB00036D23 /* SchemaV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV1.swift; sourceTree = "<group>"; };
+		5DF8098C2B21AB9700036D23 /* PreviewDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewDependencies.swift; sourceTree = "<group>"; };
+		5DF8098E2B2218B400036D23 /* SessionSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSearchView.swift; sourceTree = "<group>"; };
+		5DF809902B2219E700036D23 /* MCEventUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCEventUpdate.swift; sourceTree = "<group>"; };
+		5DF809932B22256700036D23 /* SessionListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionListItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +82,8 @@
 			isa = PBXGroup;
 			children = (
 				5DF809522B21285400036D23 /* Connectivity */,
+				5DF809632B21472200036D23 /* Sessions */,
+				5DF809882B21A0C500036D23 /* Persistence */,
 				5DF809572B21391800036D23 /* Settings */,
 				5DF809392B21144200036D23 /* ProximityShareApp.swift */,
 				5DF8093B2B21144200036D23 /* ContentView.swift */,
@@ -83,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				5DF809412B21144400036D23 /* Preview Assets.xcassets */,
+				5DF8098C2B21AB9700036D23 /* PreviewDependencies.swift */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
@@ -100,6 +117,7 @@
 			children = (
 				5DF8094E2B2121F200036D23 /* MCSessionDetails.swift */,
 				5DF809542B2135F700036D23 /* MCUser.swift */,
+				5DF809902B2219E700036D23 /* MCEventUpdate.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -144,6 +162,57 @@
 			isa = PBXGroup;
 			children = (
 				5DF8095D2B2139C900036D23 /* DisplayPicture.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		5DF809632B21472200036D23 /* Sessions */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809652B21473500036D23 /* Views */,
+				5DF809662B21473C00036D23 /* ViewModels */,
+			);
+			path = Sessions;
+			sourceTree = "<group>";
+		};
+		5DF809652B21473500036D23 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809922B22254D00036D23 /* Components */,
+				5DF809672B21476500036D23 /* HomeView.swift */,
+				5DF8098E2B2218B400036D23 /* SessionSearchView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5DF809662B21473C00036D23 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809692B21477400036D23 /* SessionViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		5DF809882B21A0C500036D23 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809892B21A0DB00036D23 /* Schema */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		5DF809892B21A0DB00036D23 /* Schema */ = {
+			isa = PBXGroup;
+			children = (
+				5DF8098A2B21A5FB00036D23 /* SchemaV1.swift */,
+			);
+			path = Schema;
+			sourceTree = "<group>";
+		};
+		5DF809922B22254D00036D23 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809932B22256700036D23 /* SessionListItem.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -219,14 +288,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				5DF8093C2B21144200036D23 /* ContentView.swift in Sources */,
+				5DF8098F2B2218B400036D23 /* SessionSearchView.swift in Sources */,
+				5DF8096A2B21477400036D23 /* SessionViewModel.swift in Sources */,
+				5DF809912B2219E700036D23 /* MCEventUpdate.swift in Sources */,
 				5DF809622B213ADF00036D23 /* ProfileView.swift in Sources */,
 				5DF809602B2139F700036D23 /* SettingsView.swift in Sources */,
+				5DF809682B21476500036D23 /* HomeView.swift in Sources */,
 				5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */,
 				5DF8095A2B21394700036D23 /* Preferences.swift in Sources */,
 				5DF8094A2B2114CA00036D23 /* MCSessionManager.swift in Sources */,
 				5DF8095E2B2139C900036D23 /* DisplayPicture.swift in Sources */,
+				5DF8098B2B21A5FB00036D23 /* SchemaV1.swift in Sources */,
+				5DF8098D2B21AB9700036D23 /* PreviewDependencies.swift in Sources */,
 				5DF809552B2135F700036D23 /* MCUser.swift in Sources */,
 				5DF8094F2B2121F200036D23 /* MCSessionDetails.swift in Sources */,
+				5DF809942B22256700036D23 /* SessionListItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

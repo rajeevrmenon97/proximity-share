@@ -27,6 +27,10 @@ class MCSessionManager: NSObject {
     private var localUser: MCUser? = nil
     private var sessionDetails: MCSessionDetails? = nil
     
+    private var availableSessions = [MCPeerID:MCSessionDetails]()
+    
+    var updates = PassthroughSubject<MCEventUpdate, Never>()
+    
     deinit {
         self.resetSession()
     }
@@ -71,6 +75,7 @@ class MCSessionManager: NSObject {
         if let serviceAdvertiser = self.serviceAdvertiser {
             serviceAdvertiser.startAdvertisingPeer()
             self.isAdvertising = true
+            logger.debug("Started advertising session \(sessionName)")
         }
     }
     
@@ -80,6 +85,7 @@ class MCSessionManager: NSObject {
             serviceAdvertiser.stopAdvertisingPeer()
             self.isAdvertising = false
             self.serviceAdvertiser = nil
+            logger.debug("Stopped advertising session")
         }
     }
     
@@ -92,6 +98,7 @@ class MCSessionManager: NSObject {
         if !self.isBrowsing, let serviceBrowser = self.serviceBrowser {
             serviceBrowser.startBrowsingForPeers()
             self.isBrowsing = true
+            logger.debug("Started browsing for sessions")
         }
     }
     
@@ -101,7 +108,13 @@ class MCSessionManager: NSObject {
             serviceBrowser.stopBrowsingForPeers()
             self.isBrowsing = false
             self.serviceBrowser = nil
+            self.availableSessions.removeAll()
+            logger.debug("Stopped browsing for sessions")
         }
+    }
+    
+    func getSessionDetails() -> MCSessionDetails? {
+        return sessionDetails
     }
 }
 
@@ -121,11 +134,22 @@ extension MCSessionManager: MCNearbyServiceBrowserDelegate {
     // Found peer
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
         logger.debug("Found peer \(peerID.displayName)")
+        if let discoveryInfo = info {
+            let sessionDetails = MCSessionDetails(discoveryInfo: discoveryInfo, leaderPeerID: peerID)
+            self.availableSessions[peerID] = sessionDetails
+            self.updates.send(MCEventUpdate(sessionDetails: sessionDetails))
+        }
     }
     
     // Lost peer
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         logger.debug("Lost peer \(peerID.displayName)")
+        if let sessionDetails = self.availableSessions[peerID] {
+            self.availableSessions.removeValue(forKey: peerID)
+            self.updates.send(MCEventUpdate(sessionDetails: sessionDetails, lost: true))
+        } else {
+            logger.error("Lost peer \(peerID.displayName), but not found in available peers")
+        }
     }
     
     // Error while trying to start browsing for peer
