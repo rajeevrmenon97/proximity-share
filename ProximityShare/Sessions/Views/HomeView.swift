@@ -10,7 +10,6 @@ import SwiftData
 
 struct HomeView: View {
     @EnvironmentObject private var sessionViewModel: SessionViewModel
-    @Environment(\.modelContext) private var modelContext
     
     @State var newSessionNameTextField = ""
     @State var showNewSessionAlert = false
@@ -32,7 +31,7 @@ struct HomeView: View {
                 }
                 .listStyle(GroupedListStyle())
                 .navigationDestination(for: String.self) { id in
-                    Text(self.sessions.first(where: {$0.id == id})!.name)
+                    SessionView(session: self.sessions.first(where: {$0.id == id})!)
                 }
             }
             .alert("Host Session", isPresented: $showNewSessionAlert) {
@@ -41,7 +40,7 @@ struct HomeView: View {
                     .autocorrectionDisabled()
                 Button("Create Chat", action: {
                     if !newSessionNameTextField.isEmpty {
-                        sessionViewModel.startNewSession(modelContext: modelContext, sessionName: newSessionNameTextField)
+                        sessionViewModel.startNewSession(newSessionNameTextField)
                     }
                     showNewSessionAlert = false
                 })

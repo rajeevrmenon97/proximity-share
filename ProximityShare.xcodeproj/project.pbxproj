@@ -27,6 +27,7 @@
 		5DF809942B22256700036D23 /* SessionListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809932B22256700036D23 /* SessionListItem.swift */; };
 		5DF809962B222B6000036D23 /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809952B222B6000036D23 /* JsonUtils.swift */; };
 		5DF809982B222F8500036D23 /* MCSessionInvite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809972B222F8500036D23 /* MCSessionInvite.swift */; };
+		5DF8099B2B22431500036D23 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8099A2B22431500036D23 /* SessionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,7 @@
 		5DF809932B22256700036D23 /* SessionListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionListItem.swift; sourceTree = "<group>"; };
 		5DF809952B222B6000036D23 /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
 		5DF809972B222F8500036D23 /* MCSessionInvite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCSessionInvite.swift; sourceTree = "<group>"; };
+		5DF8099A2B22431500036D23 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 				5DF809922B22254D00036D23 /* Components */,
 				5DF809672B21476500036D23 /* HomeView.swift */,
 				5DF8098E2B2218B400036D23 /* SessionSearchView.swift */,
+				5DF8099A2B22431500036D23 /* SessionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -309,6 +312,7 @@
 				5DF8098B2B21A5FB00036D23 /* SchemaV1.swift in Sources */,
 				5DF8098D2B21AB9700036D23 /* PreviewDependencies.swift in Sources */,
 				5DF809552B2135F700036D23 /* MCUser.swift in Sources */,
+				5DF8099B2B22431500036D23 /* SessionView.swift in Sources */,
 				5DF8094F2B2121F200036D23 /* MCSessionDetails.swift in Sources */,
 				5DF809942B22256700036D23 /* SessionListItem.swift in Sources */,
 			);

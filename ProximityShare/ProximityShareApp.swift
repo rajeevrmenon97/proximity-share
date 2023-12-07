@@ -29,7 +29,7 @@ struct ProximityShareApp: App {
             ContentView()
                 .preferredColorScheme(preferences.isDarkMode ? .dark : .light)
                 .environmentObject(self.preferences)
-                .environmentObject(SessionViewModel(sessionManager: self.sessionManager, preferences: self.preferences))
+                .environmentObject(SessionViewModel(sessionManager: self.sessionManager, preferences: self.preferences, modelContainer: sharedModelContainer))
                 .modelContainer(sharedModelContainer)
         }
     }

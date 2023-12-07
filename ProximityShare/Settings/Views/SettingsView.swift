@@ -57,9 +57,9 @@ struct SettingsView: View {
     
     func deleteData() {
         do {
+            try modelContext.delete(model: SharingSessionEvent.self)
             try modelContext.delete(model: User.self)
             try modelContext.delete(model: SharingSession.self)
-            try modelContext.delete(model: SharingSessionEvents.self)
             let user = User(id: preferences.userID,
                             name: preferences.userDisplayName,
                             aboutMe: preferences.userAboutMe)

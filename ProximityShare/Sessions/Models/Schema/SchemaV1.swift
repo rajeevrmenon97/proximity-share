@@ -11,11 +11,11 @@ import SwiftData
 typealias PersistenceSchema = SchemaV1
 typealias SharingSession = SchemaV1.SharingSession
 typealias User = SchemaV1.User
-typealias SharingSessionEvents = SchemaV1.SharingSessionEvents
+typealias SharingSessionEvent = SchemaV1.SharingSessionEvent
 
 enum SchemaV1: VersionedSchema {
     static var models: [any PersistentModel.Type] {[
-        SharingSession.self, User.self, SharingSessionEvents.self
+        SharingSession.self, User.self, SharingSessionEvent.self
     ]}
     
     static var versionIdentifier: Schema.Version = Schema.Version(1, 0, 0)
@@ -24,6 +24,7 @@ enum SchemaV1: VersionedSchema {
     final class SharingSession {
         @Attribute(.unique) let id: String
         var name: String
+        var events = [SharingSessionEvent]()
         
         @Transient var isLeader: Bool = false
         @Transient var isActive: Bool = false
@@ -33,10 +34,7 @@ enum SchemaV1: VersionedSchema {
             self.name = name
             self.isLeader = isLeader
             self.isActive = isActive
-        }
-        
-        convenience init(name: String, isLeader: Bool = false, isActive: Bool = false) {
-            self.init(id: UUID().uuidString, name: name, isLeader: isLeader, isActive: isActive)
+            self.events = [SharingSessionEvent]()
         }
     }
     
@@ -45,6 +43,7 @@ enum SchemaV1: VersionedSchema {
         @Attribute(.unique) let id: String
         var name: String
         var aboutMe: String
+        var events = [SharingSessionEvent]()
         
         init(id: String, name: String, aboutMe: String) {
             self.id = id
@@ -54,7 +53,7 @@ enum SchemaV1: VersionedSchema {
     }
     
     @Model
-    final class SharingSessionEvents {
+    final class SharingSessionEvent {
         enum EventType: Int, Codable {
             case message = 0
         }
@@ -64,14 +63,16 @@ enum SchemaV1: VersionedSchema {
         }
         
         @Attribute(.unique) var id: String
-        @Relationship(deleteRule: .cascade) var user: User
-        @Relationship(deleteRule: .cascade) var session: SharingSession
+        @Relationship(deleteRule: .cascade, inverse: \User.events)
+        var user: User?
+        @Relationship(deleteRule: .cascade, inverse: \SharingSession.events)
+        var session: SharingSession?
         var type: EventType
         var contentType: ContentType
         var content: String
         var timestamp: Date
         
-        init(id: String, type: EventType, user: User, session: SharingSession, contentType: ContentType, content: String, timestamp: Date) {
+        init(id: String, type: EventType, user: User?, session: SharingSession?, contentType: ContentType, content: String, timestamp: Date) {
             self.id = id
             self.type = type
             self.user = user
@@ -80,13 +81,5 @@ enum SchemaV1: VersionedSchema {
             self.content = content
             self.timestamp = timestamp
         }
-        
-        convenience init(id: String, type: EventType, user: User, session: SharingSession, contentType: ContentType, content: String) {
-            self.init(id: id, type: type,
-                user: user, session: session,
-                contentType: contentType, content: content,
-                timestamp: Date())
-        }
     }
-    
 }

@@ -30,5 +30,5 @@ private var sessionManager = MCSessionManager()
 @MainActor
 var contentViewPreview: some View = ContentView().preferredColorScheme(preferences.isDarkMode ? .dark : .light)
     .environmentObject(preferences)
-    .environmentObject(SessionViewModel(sessionManager: sessionManager, preferences: preferences))
+    .environmentObject(SessionViewModel(sessionManager: sessionManager, preferences: preferences, modelContainer: sharedModelContainer))
     .modelContainer(sharedModelContainer)
