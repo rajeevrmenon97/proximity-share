@@ -16,23 +16,30 @@ struct SessionView: View {
     @State var messageTextField: String = ""
     @Bindable var session: SharingSession
     
+    var events: [SharingSessionEvent] {
+        return session.events.sorted(by: { event1, event2 in
+            event1.timestamp < event2.timestamp
+        })
+    }
+    
     var body: some View {
         VStack {
             ScrollViewReader { scrollViewReader in
                 List {
-                    ForEach(session.events.sorted(by: { event1, event2 in
-                        event1.timestamp < event2.timestamp
-                    }), id: \.id) { event in
-                        Text("\(event.user!.name): \(event.content)")
+                    ForEach(events) { event in
+                        HStack {
+                            Text("\(event.user!.name): \(event.content)")
+                        }.id(event.id)
                     }
                 }
                 .listStyle(.plain)
                 .onChange(of: session.events.count) {
-                    if let last = session.events.last {
-                        withAnimation {
-                            scrollViewReader.scrollTo(last.id)
-                        }
+                    withAnimation {
+                        scrollViewReader.scrollTo(events.last!.id)
                     }
+                }
+                .task {
+                    scrollViewReader.scrollTo(events.last!.id)
                 }
             }
             
