@@ -9,10 +9,13 @@ import os
 import Foundation
 import Combine
 import SwiftData
+import MultipeerConnectivity
 
 class SessionViewModel: ObservableObject {
     @Published var navigationPath = [String]()
     @Published var availableSessions = [MCSessionDetails]()
+    @Published var isInviteSent = false
+    @Published var joinRequestUsers = [MCUser]()
     
     private var sessionManager: MCSessionManager
     private var preferences: Preferences
@@ -25,17 +28,33 @@ class SessionViewModel: ObservableObject {
         self.preferences = preferences
         self.sessionManager.updates
             .receive(on: RunLoop.main)
-            .sink { eventUpdate in
-                switch eventUpdate.type {
-                case .foundPeer:
-                    self.availableSessions.append(eventUpdate.sessionDetails!)
-                case .lostPeer:
-                    self.availableSessions.remove(at: self.availableSessions.firstIndex(where: { sessionDetails in
-                        sessionDetails.id == eventUpdate.sessionDetails!.id
-                    })!)
-                }
-            }
+            .sink{self.handleUpdates($0)}
             .store(in: &cancellables)
+    }
+    
+    func handleUpdates(_ eventUpdate: MCEventUpdate) {
+        switch eventUpdate.type {
+        case .foundPeer:
+            if let sessionDetails = eventUpdate.sessionDetails {
+                self.availableSessions.append(eventUpdate.sessionDetails!)
+                self.logger.debug("Session found: \(sessionDetails.name)")
+            }
+        case .lostPeer:
+            if let sessionDetails = eventUpdate.sessionDetails {
+                self.availableSessions.remove(at: self.availableSessions.firstIndex(where: {$0.id == sessionDetails.id})!)
+                self.logger.debug("Session lost: \(sessionDetails.name)")
+            }
+        case .receivedInvite:
+            if let user = eventUpdate.inviteUser {
+                self.joinRequestUsers.append(user)
+                self.logger.debug("Received join request from \(user.name)")
+            }
+        case .inviteExpired:
+            if let user = eventUpdate.inviteUser {
+                self.joinRequestUsers.remove(at: self.joinRequestUsers.firstIndex(where: {$0.id == eventUpdate.inviteUser!.id})!)
+                self.logger.debug("Join request from \(user.name) expired")
+            }
+        }
     }
     
     @MainActor
@@ -66,5 +85,12 @@ class SessionViewModel: ObservableObject {
     func stopLookingForSessions() {
         self.availableSessions.removeAll()
         self.sessionManager.stopBrowsing()
+        self.isInviteSent = false
+    }
+    
+    @MainActor
+    func sendInvite(peerID: MCPeerID) {
+        self.sessionManager.sendInvite(to: peerID)
+        self.isInviteSent = true
     }
 }

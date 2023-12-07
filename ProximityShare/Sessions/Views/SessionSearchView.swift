@@ -17,16 +17,17 @@ struct SessionSearchView: View {
                 List {
                     ForEach(sessionViewModel.availableSessions, id: \.id) { session in
                         Button(session.name, action: {
-                            //TODO: Send invite
+                            sessionViewModel.sendInvite(peerID: session.leaderPeerID)
                         })
+                        .disabled(sessionViewModel.isInviteSent)
                         .foregroundColor(.primary)
                     }
                 }
-                .blur(radius: false ? 20 : 0)
+                .blur(radius: sessionViewModel.isInviteSent ? 20 : 0)
                 
-                if sessionViewModel.availableSessions.isEmpty || false {
+                if sessionViewModel.availableSessions.isEmpty || sessionViewModel.isInviteSent {
                     VStack {
-                        ProgressView(false ? "Waiting for invitation response": "Looking for nearby sessions")
+                        ProgressView(sessionViewModel.isInviteSent ? "Waiting for invitation response": "Looking for nearby sessions")
                     }
                     .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, maxHeight: .infinity)
                 }

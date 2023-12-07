@@ -12,22 +12,26 @@ import MultipeerConnectivity
 
 class MCSessionManager: NSObject {
     private static let serviceType = "rrm-proxshare"
-    public static var shared = MCSessionManager()
+    private static let inviteTimeout: TimeInterval = 30
     
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "MultiPeerSession")
     
-    private var session: MCSession? = nil
-    private var serviceAdvertiser: MCNearbyServiceAdvertiser? = nil
-    private var serviceBrowser: MCNearbyServiceBrowser? = nil
+    private var session: MCSession?
+    private var serviceAdvertiser: MCNearbyServiceAdvertiser?
+    private var serviceBrowser: MCNearbyServiceBrowser?
+    private var sessionState: MCSessionState = .notConnected
     
     private var isBrowsing = false
     private var isAdvertising = false
     
-    private var peerID: MCPeerID? = nil
-    private var localUser: MCUser? = nil
-    private var sessionDetails: MCSessionDetails? = nil
+    private var peerID: MCPeerID?
+    private var localUser: MCUser?
+    private var sessionDetails: MCSessionDetails?
     
     private var availableSessions = [MCPeerID:MCSessionDetails]()
+    private var tentativeSessionDetails: MCSessionDetails?
+    private var invites = [String:MCSessionInvite]()
+    private var isInviteSent = false
     
     var updates = PassthroughSubject<MCEventUpdate, Never>()
     
@@ -109,6 +113,8 @@ class MCSessionManager: NSObject {
             self.isBrowsing = false
             self.serviceBrowser = nil
             self.availableSessions.removeAll()
+            self.invites.removeAll()
+            self.cancelInvite()
             logger.debug("Stopped browsing for sessions")
         }
     }
@@ -116,12 +122,46 @@ class MCSessionManager: NSObject {
     func getSessionDetails() -> MCSessionDetails? {
         return sessionDetails
     }
+    
+    func sendInvite(to peerID: MCPeerID) {
+        if let serviceBrowser = self.serviceBrowser, let session = self.session, let user = self.localUser {
+            var context: Data? = nil
+            if let encodedUserDetails = JsonUtils.dataEncode(user) {
+                context = encodedUserDetails
+            }
+            if let sessionDetails = self.availableSessions[peerID] {
+                serviceBrowser.invitePeer(peerID, to: session, withContext: context, timeout: Self.inviteTimeout)
+                self.tentativeSessionDetails = sessionDetails
+                self.isInviteSent = true
+                logger.debug("Sent invite to \(peerID.displayName)")
+            }
+        }
+    }
+    
+    func cancelInvite() {
+        self.tentativeSessionDetails = nil
+        self.isInviteSent = false
+    }
 }
 
 extension MCSessionManager: MCNearbyServiceAdvertiserDelegate {
     // Received an invite from user
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         logger.debug("Received an invite from \(peerID.displayName)")
+        if let data = context, let user: MCUser = JsonUtils.dataDecode(data) {
+            let invite = MCSessionInvite(peerID: peerID, user: user, invitationHandler: invitationHandler)
+            self.invites[user.id] = invite
+            
+            // Send update to view
+            self.updates.send(MCEventUpdate(invite: invite))
+            
+            // Send invitation expiry to view after timeout
+            DispatchQueue.main.asyncAfter(deadline: .now() + Self.inviteTimeout) {
+                if self.sessionState == .notConnected {
+                    self.updates.send(MCEventUpdate(invite: invite, expired: true))
+                }
+            }
+        }
     }
     
     // Error while trying to start advertising session

@@ -25,6 +25,8 @@
 		5DF8098F2B2218B400036D23 /* SessionSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8098E2B2218B400036D23 /* SessionSearchView.swift */; };
 		5DF809912B2219E700036D23 /* MCEventUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809902B2219E700036D23 /* MCEventUpdate.swift */; };
 		5DF809942B22256700036D23 /* SessionListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809932B22256700036D23 /* SessionListItem.swift */; };
+		5DF809962B222B6000036D23 /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809952B222B6000036D23 /* JsonUtils.swift */; };
+		5DF809982B222F8500036D23 /* MCSessionInvite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809972B222F8500036D23 /* MCSessionInvite.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +51,8 @@
 		5DF8098E2B2218B400036D23 /* SessionSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSearchView.swift; sourceTree = "<group>"; };
 		5DF809902B2219E700036D23 /* MCEventUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCEventUpdate.swift; sourceTree = "<group>"; };
 		5DF809932B22256700036D23 /* SessionListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionListItem.swift; sourceTree = "<group>"; };
+		5DF809952B222B6000036D23 /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
+		5DF809972B222F8500036D23 /* MCSessionInvite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCSessionInvite.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				5DF809492B2114CA00036D23 /* MCSessionManager.swift */,
+				5DF809952B222B6000036D23 /* JsonUtils.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -118,6 +123,7 @@
 				5DF8094E2B2121F200036D23 /* MCSessionDetails.swift */,
 				5DF809542B2135F700036D23 /* MCUser.swift */,
 				5DF809902B2219E700036D23 /* MCEventUpdate.swift */,
+				5DF809972B222F8500036D23 /* MCSessionInvite.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -288,10 +294,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				5DF8093C2B21144200036D23 /* ContentView.swift in Sources */,
+				5DF809982B222F8500036D23 /* MCSessionInvite.swift in Sources */,
 				5DF8098F2B2218B400036D23 /* SessionSearchView.swift in Sources */,
 				5DF8096A2B21477400036D23 /* SessionViewModel.swift in Sources */,
 				5DF809912B2219E700036D23 /* MCEventUpdate.swift in Sources */,
 				5DF809622B213ADF00036D23 /* ProfileView.swift in Sources */,
+				5DF809962B222B6000036D23 /* JsonUtils.swift in Sources */,
 				5DF809602B2139F700036D23 /* SettingsView.swift in Sources */,
 				5DF809682B21476500036D23 /* HomeView.swift in Sources */,
 				5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */,
