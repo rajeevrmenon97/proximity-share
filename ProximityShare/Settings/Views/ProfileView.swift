@@ -13,6 +13,7 @@ struct ProfileView: View {
     private var isEditable = false
     
     @EnvironmentObject private var preferences: Preferences
+    @Environment(\.modelContext) private var modelContext
     
     @State private var displayNameTextField: String = ""
     @State private var aboutMeTextField: String = ""
@@ -68,7 +69,11 @@ struct ProfileView: View {
                         if !displayNameTextField.isEmpty {
                             preferences.userDisplayName = displayNameTextField
                             preferences.userAboutMe = aboutMeTextField
-                            // TODO: Update display name in session and database?
+                            let user = User(id: preferences.userID,
+                                            name: preferences.userDisplayName,
+                                            aboutMe: preferences.userAboutMe)
+                            modelContext.insert(user)
+                            // TODO: Update display name in session?
                         }
                     })
                     .buttonStyle(.bordered)

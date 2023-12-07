@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
+import os
 
 struct SettingsView: View {
     
     @EnvironmentObject private var preferences: Preferences
+    @Environment(\.modelContext) private var modelContext
+    
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SettingsView")
     
     var body: some View {
         NavigationStack {
@@ -39,6 +43,7 @@ struct SettingsView: View {
                 
                 Section("Data") {
                     Button(action: {
+                        deleteData()
                     }, label: {
                         Label("Delete all data", systemImage: "trash.fill")
                             .foregroundColor(.red)
@@ -48,6 +53,20 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         }
         
+    }
+    
+    func deleteData() {
+        do {
+            try modelContext.delete(model: User.self)
+            try modelContext.delete(model: SharingSession.self)
+            try modelContext.delete(model: SharingSessionEvents.self)
+            let user = User(id: preferences.userID,
+                            name: preferences.userDisplayName,
+                            aboutMe: preferences.userAboutMe)
+            modelContext.insert(user)
+        } catch {
+            logger.error("Error while deleting data: \(String(describing: error))")
+        }
     }
 }
 

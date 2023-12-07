@@ -87,7 +87,6 @@
 			children = (
 				5DF809522B21285400036D23 /* Connectivity */,
 				5DF809632B21472200036D23 /* Sessions */,
-				5DF809882B21A0C500036D23 /* Persistence */,
 				5DF809572B21391800036D23 /* Settings */,
 				5DF809392B21144200036D23 /* ProximityShareApp.swift */,
 				5DF8093B2B21144200036D23 /* ContentView.swift */,
@@ -175,6 +174,7 @@
 		5DF809632B21472200036D23 /* Sessions */ = {
 			isa = PBXGroup;
 			children = (
+				5DF809992B2242A100036D23 /* Models */,
 				5DF809652B21473500036D23 /* Views */,
 				5DF809662B21473C00036D23 /* ViewModels */,
 			);
@@ -199,14 +199,6 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		5DF809882B21A0C500036D23 /* Persistence */ = {
-			isa = PBXGroup;
-			children = (
-				5DF809892B21A0DB00036D23 /* Schema */,
-			);
-			path = Persistence;
-			sourceTree = "<group>";
-		};
 		5DF809892B21A0DB00036D23 /* Schema */ = {
 			isa = PBXGroup;
 			children = (
@@ -221,6 +213,14 @@
 				5DF809932B22256700036D23 /* SessionListItem.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		5DF809992B2242A100036D23 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5DF809892B21A0DB00036D23 /* Schema */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
