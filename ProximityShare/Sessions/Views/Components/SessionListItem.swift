@@ -9,9 +9,9 @@ import SwiftUI
 
 struct SessionListItem: View {
     
-    var session: PersistenceSchema.SharingSession
+    var session: SharingSession
     
-    init(_ session: PersistenceSchema.SharingSession) {
+    init(_ session: SharingSession) {
         self.session = session
     }
     
@@ -43,8 +43,8 @@ struct SessionListItem: View {
 
 #Preview {
     List {
-        SessionListItem(PersistenceSchema.SharingSession(id: "1", name: "Session 1"))
-        SessionListItem(PersistenceSchema.SharingSession(id: "2", name: "Session 2"))
+        SessionListItem(SharingSession(id: "1", name: "Session 1"))
+        SessionListItem(SharingSession(id: "2", name: "Session 2"))
     }
     .listStyle(GroupedListStyle())
 }

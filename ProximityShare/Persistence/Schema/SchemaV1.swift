@@ -9,6 +9,9 @@ import Foundation
 import SwiftData
 
 typealias PersistenceSchema = SchemaV1
+typealias SharingSession = SchemaV1.SharingSession
+typealias User = SchemaV1.User
+typealias SharingSessionEvents = SchemaV1.SharingSessionEvents
 
 enum SchemaV1: VersionedSchema {
     static var models: [any PersistentModel.Type] {[

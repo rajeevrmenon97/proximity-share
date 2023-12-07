@@ -16,7 +16,7 @@ struct HomeView: View {
     @State var showNewSessionAlert = false
     @State var showSessionSearch = false
     
-    @Query var sessions: [PersistenceSchema.SharingSession]
+    @Query var sessions: [SharingSession]
     
     var body: some View {
         NavigationStack(path: $sessionViewModel.navigationPath) {
