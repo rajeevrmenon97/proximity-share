@@ -15,6 +15,26 @@ struct SessionListItem: View {
         self.session = session
     }
     
+    var latestMessage: String {
+        if let lastEvent = session.events.sorted(by: { event1, event2 in
+            event1.timestamp < event2.timestamp
+        }).last {
+            return "\(lastEvent.user!.name): \(lastEvent.content)"
+        }
+        return ""
+    }
+    
+    var latestTimestamp: String {
+        if let lastEvent = session.events.sorted(by: { event1, event2 in
+            event1.timestamp < event2.timestamp
+        }).last {
+            let formatter = RelativeDateTimeFormatter()
+            formatter.unitsStyle = .full
+            return formatter.localizedString(for: lastEvent.timestamp, relativeTo: Date())
+        }
+        return ""
+    }
+    
     var body: some View {
         HStack {
 
@@ -26,15 +46,16 @@ struct SessionListItem: View {
                     Text("\(session.name)")
                     Spacer()
                     HStack {
-                        Text("12:00pm")
+                        Text(latestTimestamp)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         Image(systemName: "chevron.right")
                     }
                 }
-                Text("The last message placeholder")
+                Text(latestMessage)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
             
         }

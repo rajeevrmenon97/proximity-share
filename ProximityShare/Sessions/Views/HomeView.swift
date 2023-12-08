@@ -10,6 +10,7 @@ import SwiftData
 
 struct HomeView: View {
     @EnvironmentObject private var sessionViewModel: SessionViewModel
+    @EnvironmentObject private var preferences: Preferences
     
     @State var newSessionNameTextField = ""
     @State var showNewSessionAlert = false
