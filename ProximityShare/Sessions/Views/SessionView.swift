@@ -39,14 +39,16 @@ struct SessionView: View {
                     }
                 }
                 .task {
-                    scrollViewReader.scrollTo(events.last!.id)
+                    if let last = events.last {
+                        scrollViewReader.scrollTo(last.id)
+                    }
                 }
             }
             
             Spacer()
             
             HStack {
-                if session.isActive {
+                if sessionViewModel.activeSessionID == session.id {
                     TextField("Type your message", text: $messageTextField)
                         .textFieldStyle(.roundedBorder)
                         .onSubmit {
@@ -64,7 +66,20 @@ struct SessionView: View {
             .padding()
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle(session.name)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Button(action: /*@START_MENU_TOKEN@*/{}/*@END_MENU_TOKEN@*/, label: {
+                    NavigationLink(destination: SessionInfoView(session: session)) {
+                        Text(session.name)
+                            .foregroundStyle(Color.primary)
+                        if session.id == sessionViewModel.activeSessionID && sessionViewModel.isLeader() && !sessionViewModel.joinRequestUsers.isEmpty {
+                            Label("Pending invite", systemImage: "person.crop.circle.badge.exclamationmark")
+                                .foregroundStyle(Color.red)
+                        }
+                    }
+                })
+            }
+        }
 
     }
 }

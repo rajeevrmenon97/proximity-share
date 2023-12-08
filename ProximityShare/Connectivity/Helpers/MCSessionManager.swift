@@ -142,6 +142,29 @@ class MCSessionManager: NSObject {
         self.tentativeSessionDetails = nil
         self.isInviteSent = false
     }
+    
+    func isLeader() -> Bool {
+        if let peerID = self.peerID, let sessionDetails = self.sessionDetails {
+            return peerID == sessionDetails.leaderPeerID
+        }
+        return false
+    }
+    
+    func acceptInvite(user: MCUser) {
+        if let invite = self.invites[user.id], let session = self.session {
+            invite.invitationHandler(true, session)
+        } else {
+            logger.error("Invite not found for: \(user.name)")
+        }
+    }
+    
+    func rejectInvite(user: MCUser) {
+        if let invite = self.invites[user.id], let session = self.session {
+            invite.invitationHandler(false, session)
+        } else {
+            logger.error("Invite not found for: \(user.name)")
+        }
+    }
 }
 
 extension MCSessionManager: MCNearbyServiceAdvertiserDelegate {
@@ -157,7 +180,7 @@ extension MCSessionManager: MCNearbyServiceAdvertiserDelegate {
             
             // Send invitation expiry to view after timeout
             DispatchQueue.main.asyncAfter(deadline: .now() + Self.inviteTimeout) {
-                if self.sessionState == .notConnected {
+                if self.sessionState == .notConnected && self.isInviteSent {
                     self.updates.send(MCEventUpdate(invite: invite, expired: true))
                 }
             }
@@ -202,6 +225,31 @@ extension MCSessionManager: MCSessionDelegate {
     // Peer changed session state
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         logger.debug("Peer \(peerID.displayName) changed state to \(state.rawValue)")
+        switch state {
+        case .connected:
+            self.sessionState = .connected
+            if !self.isLeader() && self.isInviteSent && peerID == self.tentativeSessionDetails?.leaderPeerID {
+                self.sessionDetails = tentativeSessionDetails
+                self.updates.send(MCEventUpdate(joinedSession: tentativeSessionDetails!))
+                self.cancelInvite()
+                break
+            }
+            // TODO: Identify self
+        case .notConnected:
+            if self.sessionState == .notConnected {
+                if self.isInviteSent, let sessionDetails = self.tentativeSessionDetails, peerID == sessionDetails.leaderPeerID {
+                    self.cancelInvite()
+                    self.updates.send(MCEventUpdate(type: .inviteRejected))
+                }
+            } else if self.sessionState == .connected {
+                if let session = self.session, session.connectedPeers.isEmpty {
+                    self.sessionState = .notConnected
+                    self.updates.send(MCEventUpdate(joinedSession: self.sessionDetails!, disconnect: true))
+                }
+            }
+        default:
+            break
+        }
     }
     
     // Received data from peer

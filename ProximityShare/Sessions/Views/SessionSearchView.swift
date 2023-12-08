@@ -32,6 +32,9 @@ struct SessionSearchView: View {
                     .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, maxHeight: .infinity)
                 }
             }
+            .onChange(of: sessionViewModel.activeSessionID, {
+                dismiss()
+            })
             .toolbar {
                 Button("Cancel") {
                     sessionViewModel.stopLookingForSessions()

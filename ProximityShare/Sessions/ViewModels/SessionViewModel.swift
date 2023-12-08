@@ -11,11 +11,13 @@ import Combine
 import SwiftData
 import MultipeerConnectivity
 
+@MainActor
 class SessionViewModel: ObservableObject {
     @Published var navigationPath = [String]()
     @Published var availableSessions = [MCSessionDetails]()
     @Published var isInviteSent = false
     @Published var joinRequestUsers = [MCUser]()
+    @Published var activeSessionID = ""
     
     private var sessionManager: MCSessionManager
     private var preferences: Preferences
@@ -24,7 +26,6 @@ class SessionViewModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SessionViewModel")
     
-    @MainActor
     init(sessionManager: MCSessionManager, preferences: Preferences, modelContainer: ModelContainer) {
         self.sessionManager = sessionManager
         self.preferences = preferences
@@ -60,17 +61,27 @@ class SessionViewModel: ObservableObject {
                 self.joinRequestUsers.remove(at: self.joinRequestUsers.firstIndex(where: {$0.id == eventUpdate.inviteUser!.id})!)
                 self.logger.debug("Join request from \(user.name) expired")
             }
+        case .inviteRejected:
+            self.isInviteSent = false
+        case .joinedSession:
+            if let sessionDetails = eventUpdate.sessionDetails {
+                self.activeSessionID = sessionDetails.id
+                self.stopLookingForSessions()
+                self.addSession(sessionDetails: sessionDetails, isLeader: false)
+            }
+        case .leftSession:
+            self.logger.debug("Disconnected from session")
+            self.activeSessionID = ""
         }
     }
     
-    @MainActor
     func addSession(sessionDetails: MCSessionDetails, isLeader: Bool) {
         let session = PersistenceSchema.SharingSession(id: sessionDetails.id, name: sessionDetails.name, isLeader: isLeader, isActive: true)
         self.modelContext.insert(session)
+        self.activeSessionID = sessionDetails.id
         self.navigationPath.append(session.id)
     }
     
-    @MainActor
     func startNewSession(_ sessionName: String) {
         self.sessionManager.startAdvertising(user: MCUser(id: preferences.userID, name: preferences.userDisplayName, aboutMe: preferences.userAboutMe), sessionName: sessionName)
         if let sessionDetails = self.sessionManager.getSessionDetails() {
@@ -80,24 +91,39 @@ class SessionViewModel: ObservableObject {
         }
     }
     
-    @MainActor
     func startLookingForSessions() {
         self.availableSessions.removeAll()
         self.sessionManager.startBrowsing(user: MCUser(
             id: preferences.userID, name: preferences.userDisplayName, aboutMe: preferences.userAboutMe))
     }
     
-    @MainActor
     func stopLookingForSessions() {
         self.availableSessions.removeAll()
         self.sessionManager.stopBrowsing()
         self.isInviteSent = false
     }
     
-    @MainActor
     func sendInvite(peerID: MCPeerID) {
         self.sessionManager.sendInvite(to: peerID)
         self.isInviteSent = true
+    }
+    
+    func isLeader() -> Bool {
+        return self.sessionManager.isLeader()
+    }
+    
+    func acceptInvite(user: MCUser) {
+        self.sessionManager.acceptInvite(user: user)
+        self.joinRequestUsers.removeAll { u in
+            u.id == user.id
+        }
+    }
+    
+    func rejectInvite(user: MCUser) {
+        self.sessionManager.rejectInvite(user: user)
+        self.joinRequestUsers.removeAll { u in
+            u.id == user.id
+        }
     }
     
     func getUserDetails(_ id: String) -> User? {

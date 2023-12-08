@@ -56,7 +56,7 @@ struct HomeView: View {
                         .foregroundStyle(.blue)
                 }
                 ToolbarItem(placement: .principal) {
-                    Text("Chats")
+                    Text("Sessions")
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Menu(content: {

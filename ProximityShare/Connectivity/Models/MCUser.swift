@@ -7,7 +7,7 @@
 
 import Foundation
 
-class MCUser: Codable {
+class MCUser: Codable, Identifiable {
     var id: String
     var name: String
     var aboutMe: String

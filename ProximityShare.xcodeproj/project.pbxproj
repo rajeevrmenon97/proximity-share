@@ -28,6 +28,7 @@
 		5DF809962B222B6000036D23 /* JsonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809952B222B6000036D23 /* JsonUtils.swift */; };
 		5DF809982B222F8500036D23 /* MCSessionInvite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809972B222F8500036D23 /* MCSessionInvite.swift */; };
 		5DF8099B2B22431500036D23 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8099A2B22431500036D23 /* SessionView.swift */; };
+		5DF8099D2B22801E00036D23 /* SessionInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8099C2B22801E00036D23 /* SessionInfoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 		5DF809952B222B6000036D23 /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
 		5DF809972B222F8500036D23 /* MCSessionInvite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCSessionInvite.swift; sourceTree = "<group>"; };
 		5DF8099A2B22431500036D23 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
+		5DF8099C2B22801E00036D23 /* SessionInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionInfoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +192,7 @@
 				5DF809672B21476500036D23 /* HomeView.swift */,
 				5DF8098E2B2218B400036D23 /* SessionSearchView.swift */,
 				5DF8099A2B22431500036D23 /* SessionView.swift */,
+				5DF8099C2B22801E00036D23 /* SessionInfoView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 				5DF809682B21476500036D23 /* HomeView.swift in Sources */,
 				5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */,
 				5DF8095A2B21394700036D23 /* Preferences.swift in Sources */,
+				5DF8099D2B22801E00036D23 /* SessionInfoView.swift in Sources */,
 				5DF8094A2B2114CA00036D23 /* MCSessionManager.swift in Sources */,
 				5DF8095E2B2139C900036D23 /* DisplayPicture.swift in Sources */,
 				5DF8098B2B21A5FB00036D23 /* SchemaV1.swift in Sources */,
