@@ -50,11 +50,19 @@ struct ItemBubble: View {
                         Text(event.content)
                             .padding(.vertical, 0.1)
                     case .imageUrl:
-                        if let uiImage = UIImage(data: loadedAttachment!) {
+                        if let data = loadedAttachment, let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
+                        } else {
+                            ZStack {
+                                Image(systemName: "photo")
+                                    .resizable()
+                                    .scaledToFit()
+                                ProgressView()
+                            }
                         }
+                        
                     default:
                         EmptyView()
                     }

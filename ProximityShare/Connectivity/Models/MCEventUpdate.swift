@@ -19,6 +19,8 @@ class MCEventUpdate {
         case inviteRejected
         case userUpdate
         case message
+        case startedReceivingResource
+        case finishedReceivingResource
     }
     
     var type: MCEventUpdateType
@@ -58,5 +60,15 @@ class MCEventUpdate {
         self.id = id
         self.user = MCUser(id: userID, name: "", aboutMe: "")
         self.content = message
+    }
+    
+    var progress: Progress?
+    var url: URL?
+    init(name: String, progress: Progress?, userID: String, finished: Bool, url: URL?) {
+        self.type = finished ? .finishedReceivingResource : .startedReceivingResource
+        self.content = name
+        self.progress = progress
+        self.user = MCUser(id: userID, name: "", aboutMe: "")
+        self.url = url
     }
 }

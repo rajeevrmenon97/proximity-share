@@ -104,7 +104,41 @@ class SessionViewModel: ObservableObject {
                     timestamp: Date())
                 self.addEvent(event, session: session, userID: user.id)
             }
+        case .startedReceivingResource:
+            if let user = eventUpdate.user, let progress = eventUpdate.progress, let id = eventUpdate.content, let session = self.activeSession {
+                let event = SharingSessionEvent(
+                    id: id,
+                    type: .message,
+                    user: nil,
+                    session: nil,
+                    contentType: .imageUrl,
+                    content: "",
+                    timestamp: Date())
+                event.progress = progress
+                self.addEvent(event, session: session, userID: user.id)
+            }
+        case .finishedReceivingResource:
+            if let url = eventUpdate.url, let id = eventUpdate.content, let event = self.getEvent(id) {
+                do {
+                    let data = try Data(contentsOf: url)
+                    _ = self.saveAttachment(data, fileName: id)
+                    event.content = id
+                    event.attachment = data
+                } catch {
+                    self.logger.error("Error receiving resource: \(String(describing: error))")
+                }
+            }
         }
+    }
+    
+    func getEvent(_ id: String) -> SharingSessionEvent? {
+        do {
+            let result = try self.modelContext.fetch(FetchDescriptor<SharingSessionEvent>(predicate: #Predicate{$0.id == id}))
+            return result.first
+        } catch {
+            self.logger.error("Error while fetching event: \(String(describing: error))")
+        }
+        return nil
     }
     
     func getSession(_ id: String) -> SharingSession? {
@@ -213,9 +247,8 @@ class SessionViewModel: ObservableObject {
         return nil
     }
     
-    func saveAttachment(_ data: Data) -> String? {
+    func saveAttachment(_ data: Data, fileName: String = UUID().uuidString) -> String? {
         do {
-            let fileName = UUID().uuidString
             let savePath = Self.attachmentsDirectory.appendingPathComponent(fileName)
             try data.write(to: savePath, options: [.atomic, .completeFileProtection])
             return fileName
@@ -228,6 +261,7 @@ class SessionViewModel: ObservableObject {
     func sendImage(_ data: Data) {
         let eventID = UUID().uuidString
         if let session = self.activeSession, let fileName = self.saveAttachment(data) {
+            _ = self.sessionManager.sendResource(url: Self.attachmentsDirectory.appendingPathComponent(fileName), name: fileName)
             let event = SharingSessionEvent(
                 id: eventID,
                 type: .message,

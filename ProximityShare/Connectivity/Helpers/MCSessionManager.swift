@@ -205,6 +205,24 @@ class MCSessionManager: NSObject {
         }
         return nil
     }
+    
+    func sendResource(url: URL, name: String) -> [Progress]? {
+        var progresses: [Progress]? = nil
+        if let session = self.session, !session.connectedPeers.isEmpty {
+            progresses = [Progress]()
+            for peer in session.connectedPeers {
+                let progress = session.sendResource(at: url, withName: name, toPeer: peer) { error in
+                    if let error = error {
+                        self.logger.error("Error sending the resource \(String(describing: error))")
+                    }
+                    self.logger.debug("Queued sending resources successfully")
+                }
+                progresses!.append(progress!)
+            }
+        }
+        print("Done initiating send resource")
+        return progresses
+    }
 }
 
 extension MCSessionManager: MCNearbyServiceAdvertiserDelegate {
@@ -317,11 +335,17 @@ extension MCSessionManager: MCSessionDelegate {
     // Started receiving a resource from peer
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
         logger.debug("Started receiving resouce \(resourceName) from \(peerID.displayName)")
+        self.updates.send(MCEventUpdate(name: resourceName, progress: progress, userID: peerID.displayName, finished: false, url: nil))
     }
     
     // Finished receiving a resource from peer
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
         logger.debug("Finished receiving resouce \(resourceName) from \(peerID.displayName)")
+        if let error = error {
+            logger.error("Error finishing receiving resource \(resourceName) from \(peerID.displayName): \(String(describing: error))")
+        } else {
+            self.updates.send(MCEventUpdate(name: resourceName, progress: nil, userID: peerID.displayName, finished: true, url: localURL))
+        }
     }
     
     // Received certificate from peer
