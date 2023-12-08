@@ -48,17 +48,18 @@ struct SessionView: View {
             Spacer()
             
             HStack {
-                if sessionViewModel.activeSessionID == session.id {
-                    TextField("Type your message", text: $messageTextField)
-                        .textFieldStyle(.roundedBorder)
-                        .onSubmit {
-                            if !messageTextField.isEmpty {
-                                sessionViewModel.sendMessage(messageTextField, session: session)
-                                messageTextField = ""
+                if let activeSession = sessionViewModel.activeSession {
+                    if activeSession.id == session.id {
+                        TextField("Type your message", text: $messageTextField)
+                            .textFieldStyle(.roundedBorder)
+                            .onSubmit {
+                                if !messageTextField.isEmpty {
+                                    sessionViewModel.sendMessage(messageTextField)
+                                    messageTextField = ""
+                                }
                             }
-                        }
-                }
-                else {
+                    }
+                } else {
                     Text("Disconnected from chat")
                         .font(.caption)
                 }
@@ -72,9 +73,11 @@ struct SessionView: View {
                     NavigationLink(destination: SessionInfoView(session: session)) {
                         Text(session.name)
                             .foregroundStyle(Color.primary)
-                        if session.id == sessionViewModel.activeSessionID && sessionViewModel.isLeader() && !sessionViewModel.joinRequestUsers.isEmpty {
-                            Label("Pending invite", systemImage: "person.crop.circle.badge.exclamationmark")
-                                .foregroundStyle(Color.red)
+                        if let activeSession = sessionViewModel.activeSession {
+                            if session.id == activeSession.id && sessionViewModel.isLeader() && !sessionViewModel.joinRequestUsers.isEmpty {
+                                Label("Pending invite", systemImage: "person.crop.circle.badge.exclamationmark")
+                                    .foregroundStyle(Color.red)
+                            }
                         }
                     }
                 })

@@ -9,7 +9,7 @@ import Foundation
 import MultipeerConnectivity
 
 class MCEventUpdate {
-    enum MCEventType {
+    enum MCEventUpdateType {
         case foundPeer
         case lostPeer
         case receivedInvite
@@ -18,9 +18,10 @@ class MCEventUpdate {
         case leftSession
         case inviteRejected
         case userUpdate
+        case message
     }
     
-    var type: MCEventType
+    var type: MCEventUpdateType
     
     var sessionDetails: MCSessionDetails?
     
@@ -46,7 +47,16 @@ class MCEventUpdate {
         self.user = userUpdate
     }
     
-    init(type: MCEventType) {
+    init(type: MCEventUpdateType) {
         self.type = type
+    }
+    
+    var id: String?
+    var content: String?
+    init(id: String, message: String, userID: String) {
+        self.type = .message
+        self.id = id
+        self.user = MCUser(id: userID, name: "", aboutMe: "")
+        self.content = message
     }
 }

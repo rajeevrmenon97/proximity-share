@@ -26,31 +26,33 @@ struct SessionInfoView: View {
             }
             .listRowBackground(Color.clear)
             
-            if session.id == sessionViewModel.activeSessionID && sessionViewModel.isLeader() {
-                Section("Join Requests") {
-                    ForEach(sessionViewModel.joinRequestUsers) { user in
-                        HStack {
-                            DisplayPicture(name: user.name, size: 15, font: .caption)
-                            Text(user.name)
-                            Spacer()
-                            Button("Accept") {
-                                withAnimation {
-                                    self.sessionViewModel.acceptInvite(user: user)
+            if let activeSession = sessionViewModel.activeSession {
+                if session.id == activeSession.id && sessionViewModel.isLeader() {
+                    Section("Join Requests") {
+                        ForEach(sessionViewModel.joinRequestUsers) { user in
+                            HStack {
+                                DisplayPicture(name: user.name, size: 15, font: .caption)
+                                Text(user.name)
+                                Spacer()
+                                Button("Accept") {
+                                    withAnimation {
+                                        self.sessionViewModel.acceptInvite(user: user)
+                                    }
                                 }
-                            }
-                            .foregroundStyle(Color.green)
-                            .buttonStyle(.bordered)
-                            Button("Reject") {
-                                withAnimation {
-                                    self.sessionViewModel.rejectInvite(user: user)
+                                .foregroundStyle(Color.green)
+                                .buttonStyle(.bordered)
+                                Button("Reject") {
+                                    withAnimation {
+                                        self.sessionViewModel.rejectInvite(user: user)
+                                    }
                                 }
+                                .foregroundStyle(Color.red)
+                                .buttonStyle(.bordered)
                             }
-                            .foregroundStyle(Color.red)
-                            .buttonStyle(.bordered)
                         }
-                    }
-                    if sessionViewModel.joinRequestUsers.isEmpty {
-                        Text("No pending requests")
+                        if sessionViewModel.joinRequestUsers.isEmpty {
+                            Text("No pending requests")
+                        }
                     }
                 }
             }

@@ -17,7 +17,7 @@ class SessionViewModel: ObservableObject {
     @Published var availableSessions = [MCSessionDetails]()
     @Published var isInviteSent = false
     @Published var joinRequestUsers = [MCUser]()
-    @Published var activeSessionID = ""
+    @Published var activeSession: SharingSession?
     
     private var sessionManager: MCSessionManager
     private var preferences: Preferences
@@ -65,17 +65,28 @@ class SessionViewModel: ObservableObject {
             self.isInviteSent = false
         case .joinedSession:
             if let sessionDetails = eventUpdate.sessionDetails {
-                self.activeSessionID = sessionDetails.id
                 self.stopLookingForSessions()
                 self.addSession(sessionDetails: sessionDetails, isLeader: false)
             }
         case .leftSession:
             self.logger.debug("Disconnected from session")
-            self.activeSessionID = ""
+            self.activeSession = nil
         case .userUpdate:
             if let user = eventUpdate.user {
                 self.modelContext.insert(User(id: user.id, name: user.name, aboutMe: user.aboutMe))
                 self.logger.debug("Updated user info for \(user.name)")
+            }
+        case .message:
+            if let user = eventUpdate.user, let eventID = eventUpdate.id, let content = eventUpdate.content, let session = self.activeSession {
+                let event = SharingSessionEvent(
+                    id: eventID,
+                    type: .message,
+                    user: nil,
+                    session: nil,
+                    contentType: .message,
+                    content: content,
+                    timestamp: Date())
+                self.addEvent(event, session: session, userID: user.id)
             }
         }
     }
@@ -83,7 +94,7 @@ class SessionViewModel: ObservableObject {
     func addSession(sessionDetails: MCSessionDetails, isLeader: Bool) {
         let session = PersistenceSchema.SharingSession(id: sessionDetails.id, name: sessionDetails.name, isLeader: isLeader, isActive: true)
         self.modelContext.insert(session)
-        self.activeSessionID = sessionDetails.id
+        self.activeSession = session
         self.navigationPath.append(session.id)
     }
     
@@ -148,16 +159,17 @@ class SessionViewModel: ObservableObject {
         }
     }
     
-    func sendMessage(_ content: String, session: SharingSession) {
-        let event = SharingSessionEvent(
-            id: UUID().uuidString,
-            type: .message,
-            user: nil,
-            session: nil,
-            contentType: .message,
-            content: content,
-            timestamp: Date())
-        self.addEvent(event, session: session, userID: preferences.userID)
-        // TODO: Send message to session
+    func sendMessage(_ content: String) {
+        if let eventID = self.sessionManager.sendMessage(content), let session = self.activeSession {
+            let event = SharingSessionEvent(
+                id: eventID,
+                type: .message,
+                user: nil,
+                session: nil,
+                contentType: .message,
+                content: content,
+                timestamp: Date())
+            self.addEvent(event, session: session, userID: preferences.userID)
+        }
     }
 }

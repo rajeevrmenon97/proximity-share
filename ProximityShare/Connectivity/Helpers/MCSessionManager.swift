@@ -189,6 +189,22 @@ class MCSessionManager: NSObject {
             self.sendEvent(event)
         }
     }
+    
+    func sendMessage(_ content: String) -> String? {
+        if let user = self.localUser, let sessionDetails = self.sessionDetails {
+            let event = MCEvent(
+                id: UUID().uuidString,
+                userID: user.id,
+                sessionID: sessionDetails.id,
+                type: .message,
+                contentType: .message,
+                content: content,
+                timestamp: Date())
+            self.sendEvent(event)
+            return event.id
+        }
+        return nil
+    }
 }
 
 extension MCSessionManager: MCNearbyServiceAdvertiserDelegate {
@@ -286,7 +302,7 @@ extension MCSessionManager: MCSessionDelegate {
                     self.updates.send(MCEventUpdate(userUpdate: receivedUserDetails))
                 }
             case .message:
-                break
+                self.updates.send(MCEventUpdate(id: event.id, message: event.content, userID: event.userID))
             }
         }
     }
