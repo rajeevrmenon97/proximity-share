@@ -111,7 +111,7 @@ class SessionViewModel: ObservableObject {
                     type: .message,
                     user: nil,
                     session: nil,
-                    contentType: .imageUrl,
+                    contentType: .fileURL,
                     content: "",
                     timestamp: Date())
                 event.progress = progress
@@ -267,7 +267,7 @@ class SessionViewModel: ObservableObject {
                 type: .message,
                 user: nil,
                 session: nil,
-                contentType: .imageUrl,
+                contentType: .fileURL,
                 content: fileName,
                 timestamp: Date())
             event.attachment = data

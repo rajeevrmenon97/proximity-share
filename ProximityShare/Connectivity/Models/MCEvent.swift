@@ -15,7 +15,7 @@ enum EventType: Int, Codable {
 enum ContentType: Int, Codable {
     case message = 0
     case json = 1
-    case imageUrl = 2
+    case fileURL = 2
 }
 
 class MCEvent: Codable {

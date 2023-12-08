@@ -49,11 +49,19 @@ struct ItemBubble: View {
                     case .message:
                         Text(event.content)
                             .padding(.vertical, 0.1)
-                    case .imageUrl:
-                        if let data = loadedAttachment, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFit()
+                    case .fileURL:
+                        if let data = loadedAttachment {
+                            if let uiImage = UIImage(data: data) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                            } else {
+                                ZStack {
+                                    Image(systemName: "photo")
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                            }
                         } else {
                             ZStack {
                                 Image(systemName: "photo")
