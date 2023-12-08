@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SessionListItem: View {
     
+    @EnvironmentObject var sessionViewModel: SessionViewModel
+    
     var session: SharingSession
     
     init(_ session: SharingSession) {
@@ -30,10 +32,13 @@ struct SessionListItem: View {
         }).last {
             let formatter = RelativeDateTimeFormatter()
             formatter.unitsStyle = .full
-            return formatter.localizedString(for: lastEvent.timestamp, relativeTo: Date())
+            let formattedDate = formatter.localizedString(for: lastEvent.timestamp, relativeTo: currentDate)
+            return formattedDate == "in 0 seconds" ? "now" : formattedDate
         }
         return ""
     }
+    
+    @State var currentDate: Date = Date()
     
     var body: some View {
         HStack {
@@ -44,6 +49,12 @@ struct SessionListItem: View {
                 
                 HStack{
                     Text("\(session.name)")
+                    if let activeSession = sessionViewModel.activeSession {
+                        if session.id == activeSession.id && sessionViewModel.isLeader() && !sessionViewModel.joinRequestUsers.isEmpty {
+                            Label("", systemImage: "person.crop.circle.badge.exclamationmark")
+                                .foregroundStyle(Color.red)
+                        }
+                    }
                     Spacer()
                     HStack {
                         Text(latestTimestamp)
@@ -59,6 +70,9 @@ struct SessionListItem: View {
             }
             
         }
+        .onAppear(perform: {
+            currentDate = Date()
+        })
     }
 }
 

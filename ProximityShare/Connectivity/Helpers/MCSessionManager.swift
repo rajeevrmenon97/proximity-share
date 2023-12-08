@@ -283,7 +283,9 @@ extension MCSessionManager: MCSessionDelegate {
             } else if self.sessionState == .connected {
                 if let session = self.session, session.connectedPeers.isEmpty {
                     self.sessionState = .notConnected
-                    self.updates.send(MCEventUpdate(joinedSession: self.sessionDetails!, disconnect: true))
+                    if !self.isLeader() {
+                        self.updates.send(MCEventUpdate(joinedSession: self.sessionDetails!, disconnect: true))
+                    }
                 }
             }
         default:

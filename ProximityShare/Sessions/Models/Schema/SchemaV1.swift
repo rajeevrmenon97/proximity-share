@@ -26,14 +26,9 @@ enum SchemaV1: VersionedSchema {
         var name: String
         var events = [SharingSessionEvent]()
         
-        @Transient var isLeader: Bool = false
-        @Transient var isActive: Bool = false
-        
-        init(id: String, name: String, isLeader: Bool = false, isActive: Bool = false) {
+        init(id: String, name: String) {
             self.id = id
             self.name = name
-            self.isLeader = isLeader
-            self.isActive = isActive
             self.events = [SharingSessionEvent]()
         }
     }

@@ -66,7 +66,7 @@ class SessionViewModel: ObservableObject {
         case .joinedSession:
             if let sessionDetails = eventUpdate.sessionDetails {
                 self.stopLookingForSessions()
-                self.addSession(sessionDetails: sessionDetails, isLeader: false)
+                self.addSession(sessionDetails: sessionDetails)
             }
         case .leftSession:
             self.logger.debug("Disconnected from session")
@@ -91,17 +91,32 @@ class SessionViewModel: ObservableObject {
         }
     }
     
-    func addSession(sessionDetails: MCSessionDetails, isLeader: Bool) {
-        let session = PersistenceSchema.SharingSession(id: sessionDetails.id, name: sessionDetails.name, isLeader: isLeader, isActive: true)
-        self.modelContext.insert(session)
-        self.activeSession = session
-        self.navigationPath.append(session.id)
+    func getSession(_ id: String) -> SharingSession? {
+        do {
+            let result = try self.modelContext.fetch(FetchDescriptor<SharingSession>(predicate: #Predicate{$0.id == id}))
+            return result.first
+        } catch {
+            self.logger.error("Error while fetching session: \(String(describing: error))")
+        }
+        return nil
+    }
+    
+    func addSession(sessionDetails: MCSessionDetails) {
+        var session: SharingSession?
+        if let existingSession = self.getSession(sessionDetails.id) {
+            session = existingSession
+        } else {
+            session = SharingSession(id: sessionDetails.id, name: sessionDetails.name)
+            self.modelContext.insert(session!)
+        }
+        self.activeSession = session!
+        self.navigationPath.append(session!.id)
     }
     
     func startNewSession(_ sessionName: String) {
         self.sessionManager.startAdvertising(user: MCUser(id: preferences.userID, name: preferences.userDisplayName, aboutMe: preferences.userAboutMe), sessionName: sessionName)
         if let sessionDetails = self.sessionManager.getSessionDetails() {
-            self.addSession(sessionDetails: sessionDetails, isLeader: true)
+            self.addSession(sessionDetails: sessionDetails)
         } else {
             logger.error("Failed to get session details after starting to advertise")
         }
