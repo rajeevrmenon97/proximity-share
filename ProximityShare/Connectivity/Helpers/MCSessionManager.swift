@@ -165,6 +165,30 @@ class MCSessionManager: NSObject {
             logger.error("Invite not found for: \(user.name)")
         }
     }
+    
+    func sendEvent(_ event: MCEvent) {
+        if let session = self.session, !session.connectedPeers.isEmpty, let jsonData = JsonUtils.dataEncode(event) {
+            do {
+                try session.send(jsonData, toPeers: session.connectedPeers, with: .reliable)
+            } catch {
+                print("Error sending event to peers: \(String(describing: error))")
+            }
+        }
+    }
+    
+    func sendIdentity() {
+        if let user = self.localUser, let sessionDetails = self.sessionDetails, let encodedUserDetails = JsonUtils.stringEncode(user) {
+            let event = MCEvent(
+                id: UUID().uuidString,
+                userID: user.id,
+                sessionID: sessionDetails.id,
+                type: .identity,
+                contentType: .json,
+                content: encodedUserDetails,
+                timestamp: Date())
+            self.sendEvent(event)
+        }
+    }
 }
 
 extension MCSessionManager: MCNearbyServiceAdvertiserDelegate {
@@ -232,9 +256,8 @@ extension MCSessionManager: MCSessionDelegate {
                 self.sessionDetails = tentativeSessionDetails
                 self.updates.send(MCEventUpdate(joinedSession: tentativeSessionDetails!))
                 self.cancelInvite()
-                break
             }
-            // TODO: Identify self
+            self.sendIdentity()
         case .notConnected:
             if self.sessionState == .notConnected {
                 if self.isInviteSent, let sessionDetails = self.tentativeSessionDetails, peerID == sessionDetails.leaderPeerID {
@@ -255,6 +278,17 @@ extension MCSessionManager: MCSessionDelegate {
     // Received data from peer
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         logger.debug("Received \(data.count) bytes from \(peerID.displayName)")
+        if let event: MCEvent = JsonUtils.dataDecode(data) {
+            switch event.type {
+            case .identity:
+                if let receivedUserDetails: MCUser = JsonUtils.stringDecode(event.content) {
+                    logger.debug("Received user information for \(receivedUserDetails.name)")
+                    self.updates.send(MCEventUpdate(userUpdate: receivedUserDetails))
+                }
+            case .message:
+                break
+            }
+        }
     }
     
     // Received an input stream from peer

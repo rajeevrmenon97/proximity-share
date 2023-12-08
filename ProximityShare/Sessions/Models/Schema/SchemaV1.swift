@@ -54,14 +54,6 @@ enum SchemaV1: VersionedSchema {
     
     @Model
     final class SharingSessionEvent {
-        enum EventType: Int, Codable {
-            case message = 0
-        }
-        
-        enum ContentType: Int, Codable {
-            case message = 0
-        }
-        
         @Attribute(.unique) var id: String
         @Relationship(deleteRule: .cascade, inverse: \User.events)
         var user: User?

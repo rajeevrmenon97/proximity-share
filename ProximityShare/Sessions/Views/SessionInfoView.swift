@@ -44,7 +44,6 @@ struct SessionInfoView: View {
                                 withAnimation {
                                     self.sessionViewModel.rejectInvite(user: user)
                                 }
-                                
                             }
                             .foregroundStyle(Color.red)
                             .buttonStyle(.bordered)

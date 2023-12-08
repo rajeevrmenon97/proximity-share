@@ -52,13 +52,13 @@ class SessionViewModel: ObservableObject {
                 self.logger.debug("Session lost: \(sessionDetails.name)")
             }
         case .receivedInvite:
-            if let user = eventUpdate.inviteUser {
+            if let user = eventUpdate.user {
                 self.joinRequestUsers.append(user)
                 self.logger.debug("Received join request from \(user.name)")
             }
         case .inviteExpired:
-            if let user = eventUpdate.inviteUser {
-                self.joinRequestUsers.remove(at: self.joinRequestUsers.firstIndex(where: {$0.id == eventUpdate.inviteUser!.id})!)
+            if let user = eventUpdate.user {
+                self.joinRequestUsers.remove(at: self.joinRequestUsers.firstIndex(where: {$0.id == eventUpdate.user!.id})!)
                 self.logger.debug("Join request from \(user.name) expired")
             }
         case .inviteRejected:
@@ -72,6 +72,11 @@ class SessionViewModel: ObservableObject {
         case .leftSession:
             self.logger.debug("Disconnected from session")
             self.activeSessionID = ""
+        case .userUpdate:
+            if let user = eventUpdate.user {
+                self.modelContext.insert(User(id: user.id, name: user.name, aboutMe: user.aboutMe))
+                self.logger.debug("Updated user info for \(user.name)")
+            }
         }
     }
     

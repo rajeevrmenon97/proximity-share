@@ -17,11 +17,13 @@ class MCEventUpdate {
         case joinedSession
         case leftSession
         case inviteRejected
+        case userUpdate
     }
     
     var type: MCEventType
     
     var sessionDetails: MCSessionDetails?
+    
     init(sessionDetails: MCSessionDetails, lost: Bool = false) {
         self.type = lost ? .lostPeer : .foundPeer
         self.sessionDetails = sessionDetails
@@ -32,10 +34,16 @@ class MCEventUpdate {
         self.sessionDetails = joinedSession
     }
     
-    var inviteUser: MCUser?
+    var user: MCUser?
+    
     init(invite: MCSessionInvite, expired: Bool = false) {
         self.type = expired ? .inviteExpired : .receivedInvite
-        self.inviteUser = invite.user
+        self.user = invite.user
+    }
+    
+    init(userUpdate: MCUser) {
+        self.type = .userUpdate
+        self.user = userUpdate
     }
     
     init(type: MCEventType) {
