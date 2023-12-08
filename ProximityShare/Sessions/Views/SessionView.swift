@@ -27,9 +27,9 @@ struct SessionView: View {
             ScrollViewReader { scrollViewReader in
                 List {
                     ForEach(events) { event in
-                        HStack {
-                            Text("\(event.user!.name): \(event.content)")
-                        }.id(event.id)
+                        ItemBubble(event: event, isSelfMessage: preferences.userID == event.user!.id)
+                            .id(event.id)
+                            .listRowSeparator(.hidden)
                     }
                 }
                 .listStyle(.plain)
