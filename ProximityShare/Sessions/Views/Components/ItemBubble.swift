@@ -13,12 +13,21 @@ struct ItemBubble: View {
     var isSelfMessage: Bool
     
     @State var currentDate: Date = Date()
+    @EnvironmentObject var sessionViewModel: SessionViewModel
     
     var latestTimestamp: String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         let formattedDate = formatter.localizedString(for: event.timestamp, relativeTo: currentDate)
         return formattedDate == "in 0 seconds" ? "now" : formattedDate
+    }
+    
+    var loadedAttachment: Data? {
+        var data: Data? = event.attachment
+        if event.attachment == nil {
+            data = sessionViewModel.loadAttachment(event.content)
+        }
+        return data
     }
     
     var body: some View {
@@ -36,8 +45,20 @@ struct ItemBubble: View {
                     }
                     .foregroundStyle(.secondary)
                     
-                    Text(event.content)
-                        .padding(.vertical, 0.1)
+                    switch event.contentType {
+                    case .message:
+                        Text(event.content)
+                            .padding(.vertical, 0.1)
+                    case .imageUrl:
+                        if let uiImage = UIImage(data: loadedAttachment!) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                        }
+                    default:
+                        EmptyView()
+                    }
+                    
                     
                     HStack {
                         

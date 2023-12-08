@@ -21,7 +21,11 @@ struct SessionListItem: View {
         if let lastEvent = session.events.sorted(by: { event1, event2 in
             event1.timestamp < event2.timestamp
         }).last {
-            return "\(lastEvent.user!.name): \(lastEvent.content)"
+            if lastEvent.contentType == .message {
+                return "\(lastEvent.user!.name): \(lastEvent.content)"
+            } else if lastEvent.contentType == .imageUrl {
+                return "\(lastEvent.user!.name): Attachment"
+            }
         }
         return ""
     }

@@ -59,6 +59,8 @@ enum SchemaV1: VersionedSchema {
         var content: String
         var timestamp: Date
         
+        @Transient var attachment: Data? = nil
+        
         init(id: String, type: EventType, user: User?, session: SharingSession?, contentType: ContentType, content: String, timestamp: Date) {
             self.id = id
             self.type = type

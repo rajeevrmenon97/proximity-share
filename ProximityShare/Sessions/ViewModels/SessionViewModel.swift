@@ -23,6 +23,22 @@ class SessionViewModel: ObservableObject {
     private var preferences: Preferences
     private var modelContext: ModelContext
     
+    private static let attachmentsDirectory: URL = {
+        do {
+            let path = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("attachments")
+            if !FileManager.default.fileExists(atPath: path.path) {
+                do {
+                    try FileManager.default.createDirectory(atPath: path.path, withIntermediateDirectories: true, attributes: nil)
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
+            return path
+        } catch {
+            fatalError("Cannot get document directory path")
+        }
+    }()
+    
     private var cancellables: Set<AnyCancellable> = []
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SessionViewModel")
     
@@ -184,6 +200,43 @@ class SessionViewModel: ObservableObject {
                 contentType: .message,
                 content: content,
                 timestamp: Date())
+            self.addEvent(event, session: session, userID: preferences.userID)
+        }
+    }
+    
+    func loadAttachment(_ fileName: String) -> Data? {
+        do {
+            return try Data(contentsOf: Self.attachmentsDirectory.appendingPathComponent(fileName))
+        } catch {
+            self.logger.error("Error reading file \(fileName): \(String(describing: error))")
+        }
+        return nil
+    }
+    
+    func saveAttachment(_ data: Data) -> String? {
+        do {
+            let fileName = UUID().uuidString
+            let savePath = Self.attachmentsDirectory.appendingPathComponent(fileName)
+            try data.write(to: savePath, options: [.atomic, .completeFileProtection])
+            return fileName
+        } catch {
+            self.logger.error("Error writing file: \(String(describing: error))")
+        }
+        return nil
+    }
+    
+    func sendImage(_ data: Data) {
+        let eventID = UUID().uuidString
+        if let session = self.activeSession, let fileName = self.saveAttachment(data) {
+            let event = SharingSessionEvent(
+                id: eventID,
+                type: .message,
+                user: nil,
+                session: nil,
+                contentType: .imageUrl,
+                content: fileName,
+                timestamp: Date())
+            event.attachment = data
             self.addEvent(event, session: session, userID: preferences.userID)
         }
     }

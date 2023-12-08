@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 struct SessionView: View {
     
@@ -14,6 +15,8 @@ struct SessionView: View {
     @EnvironmentObject private var preferences: Preferences
     
     @State var messageTextField: String = ""
+    @State var showImagePicker = false
+    @State private var pickedImage: PhotosPickerItem?
     @Bindable var session: SharingSession
     
     var events: [SharingSessionEvent] {
@@ -50,6 +53,13 @@ struct SessionView: View {
             HStack {
                 if let activeSession = sessionViewModel.activeSession {
                     if activeSession.id == session.id {
+                        Menu(content: {
+                            Button {
+                                showImagePicker.toggle()
+                            } label: {
+                                Label("Photos", systemImage: "photo")
+                            }
+                        }, label: {Label("", systemImage: "plus")})
                         TextField("Type your message", text: $messageTextField)
                             .textFieldStyle(.roundedBorder)
                             .onSubmit {
@@ -65,6 +75,17 @@ struct SessionView: View {
                 }
             }
             .padding()
+        }
+        .photosPicker(isPresented: $showImagePicker, selection: $pickedImage)
+        .onChange(of: pickedImage) { _, _ in
+            Task {
+                if let data = try? await pickedImage?.loadTransferable(type: Data.self) {
+                    sessionViewModel.sendImage(data)
+                    pickedImage = nil
+                } else {
+                    print("Failed")
+                }
+            }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
