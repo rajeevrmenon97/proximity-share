@@ -11,6 +11,7 @@ import os
 struct SettingsView: View {
     
     @EnvironmentObject private var preferences: Preferences
+    @EnvironmentObject private var sessionViewModel: SessionViewModel
     @Environment(\.modelContext) private var modelContext
     
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SettingsView")
@@ -57,6 +58,7 @@ struct SettingsView: View {
     
     func deleteData() {
         do {
+            sessionViewModel.navigationPath.removeAll()
             try modelContext.delete(model: SharingSessionEvent.self)
             try modelContext.delete(model: User.self)
             try modelContext.delete(model: SharingSession.self)
