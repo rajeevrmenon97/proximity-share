@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5D3D27332B2298A100751768 /* MCEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3D27322B2298A100751768 /* MCEvent.swift */; };
 		5D3D27372B22AD9900751768 /* ItemBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3D27362B22AD9900751768 /* ItemBubble.swift */; };
+		5D6AFAC72B285FCE00ECEDEB /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */; };
 		5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809392B21144200036D23 /* ProximityShareApp.swift */; };
 		5DF8093C2B21144200036D23 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8093B2B21144200036D23 /* ContentView.swift */; };
 		5DF8093E2B21144400036D23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DF8093D2B21144400036D23 /* Assets.xcassets */; };
@@ -36,6 +37,7 @@
 /* Begin PBXFileReference section */
 		5D3D27322B2298A100751768 /* MCEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCEvent.swift; sourceTree = "<group>"; };
 		5D3D27362B22AD9900751768 /* ItemBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemBubble.swift; sourceTree = "<group>"; };
+		5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		5DF809362B21144200036D23 /* ProximityShare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProximityShare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DF809392B21144200036D23 /* ProximityShareApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximityShareApp.swift; sourceTree = "<group>"; };
 		5DF8093B2B21144200036D23 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				5DF809572B21391800036D23 /* Settings */,
 				5DF809392B21144200036D23 /* ProximityShareApp.swift */,
 				5DF8093B2B21144200036D23 /* ContentView.swift */,
+				5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */,
 				5DF809532B2133DE00036D23 /* Info.plist */,
 				5DF8093D2B21144400036D23 /* Assets.xcassets */,
 				5DF8093F2B21144400036D23 /* ProximityShare.entitlements */,
@@ -322,6 +325,7 @@
 				5DF8094A2B2114CA00036D23 /* MCSessionManager.swift in Sources */,
 				5DF8095E2B2139C900036D23 /* DisplayPicture.swift in Sources */,
 				5DF8098B2B21A5FB00036D23 /* SchemaV1.swift in Sources */,
+				5D6AFAC72B285FCE00ECEDEB /* SplashView.swift in Sources */,
 				5DF8098D2B21AB9700036D23 /* PreviewDependencies.swift in Sources */,
 				5DF809552B2135F700036D23 /* MCUser.swift in Sources */,
 				5DF8099B2B22431500036D23 /* SessionView.swift in Sources */,
