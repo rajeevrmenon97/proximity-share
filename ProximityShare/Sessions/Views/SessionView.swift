@@ -38,13 +38,11 @@ struct SessionView: View {
                 .listStyle(.plain)
                 .onChange(of: session.events.count) {
                     withAnimation {
-                        scrollViewReader.scrollTo(events.last!.id)
+                        scrollViewReader.scrollTo(events.last?.id)
                     }
                 }
                 .task {
-                    if let last = events.last {
-                        scrollViewReader.scrollTo(last.id)
-                    }
+                    scrollViewReader.scrollTo(events.last?.id)
                 }
             }
             
