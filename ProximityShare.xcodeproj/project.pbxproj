@@ -10,6 +10,7 @@
 		5D3D27332B2298A100751768 /* MCEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3D27322B2298A100751768 /* MCEvent.swift */; };
 		5D3D27372B22AD9900751768 /* ItemBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3D27362B22AD9900751768 /* ItemBubble.swift */; };
 		5D6AFAC72B285FCE00ECEDEB /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */; };
+		5D6AFACB2B286D6700ECEDEB /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AFACA2B286D6700ECEDEB /* CustomAlert.swift */; };
 		5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809392B21144200036D23 /* ProximityShareApp.swift */; };
 		5DF8093C2B21144200036D23 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8093B2B21144200036D23 /* ContentView.swift */; };
 		5DF8093E2B21144400036D23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DF8093D2B21144400036D23 /* Assets.xcassets */; };
@@ -38,6 +39,7 @@
 		5D3D27322B2298A100751768 /* MCEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCEvent.swift; sourceTree = "<group>"; };
 		5D3D27362B22AD9900751768 /* ItemBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemBubble.swift; sourceTree = "<group>"; };
 		5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		5D6AFACA2B286D6700ECEDEB /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
 		5DF809362B21144200036D23 /* ProximityShare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProximityShare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DF809392B21144200036D23 /* ProximityShareApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximityShareApp.swift; sourceTree = "<group>"; };
 		5DF8093B2B21144200036D23 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 			children = (
 				5DF809932B22256700036D23 /* SessionListItem.swift */,
 				5D3D27362B22AD9900751768 /* ItemBubble.swift */,
+				5D6AFACA2B286D6700ECEDEB /* CustomAlert.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -323,6 +326,7 @@
 				5D3D27332B2298A100751768 /* MCEvent.swift in Sources */,
 				5DF8099D2B22801E00036D23 /* SessionInfoView.swift in Sources */,
 				5DF8094A2B2114CA00036D23 /* MCSessionManager.swift in Sources */,
+				5D6AFACB2B286D6700ECEDEB /* CustomAlert.swift in Sources */,
 				5DF8095E2B2139C900036D23 /* DisplayPicture.swift in Sources */,
 				5DF8098B2B21A5FB00036D23 /* SchemaV1.swift in Sources */,
 				5D6AFAC72B285FCE00ECEDEB /* SplashView.swift in Sources */,

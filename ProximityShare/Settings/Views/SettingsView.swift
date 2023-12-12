@@ -14,46 +14,65 @@ struct SettingsView: View {
     @EnvironmentObject private var sessionViewModel: SessionViewModel
     @Environment(\.modelContext) private var modelContext
     
+    @State var deleteDataAlert = false
+    
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SettingsView")
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    HStack{
-                        Spacer()
-                        VStack {
-                            DisplayPicture(name: preferences.userDisplayName, size: 75)
-                            Text("\(preferences.userDisplayName)")
-                                .font(.title)
-                                .overlay(
-                                    NavigationLink("", destination: ProfileView(isEditable: true))
-                                        .opacity(0)
-                                )
+            ZStack {
+                Form {
+                    Section {
+                        HStack{
+                            Spacer()
+                            VStack {
+                                DisplayPicture(name: preferences.userDisplayName, size: 75)
+                                Text("\(preferences.userDisplayName)")
+                                    .font(.title)
+                                    .overlay(
+                                        NavigationLink("", destination: ProfileView(isEditable: true))
+                                            .opacity(0)
+                                    )
+                            }
+                            Spacer()
                         }
-                        Spacer()
+                    }
+                    
+                    Section("Appearance") {
+                        Toggle(isOn: $preferences.isDarkMode, label: {
+                            Label("Dark mode", systemImage: "moon")
+                                .foregroundColor(.primary)
+                        })
+                    }
+                    
+                    Section("Data") {
+                        Button(action: {
+                            toggleDeleteDataAlert()
+                        }, label: {
+                            Label("Delete all data", systemImage: "trash.fill")
+                                .foregroundColor(.red)
+                        })
                     }
                 }
                 
-                Section("Appearance") {
-                    Toggle(isOn: $preferences.isDarkMode, label: {
-                        Label("Dark mode", systemImage: "moon")
-                            .foregroundColor(.primary)
-                    })
-                }
-                
-                Section("Data") {
-                    Button(action: {
+                if deleteDataAlert {
+                    CustomAlertView(title: "Delete data", description: "Are you sure?", cancelAction: {
+                        toggleDeleteDataAlert()
+                    }, cancelActionTitle: "Cancel", primaryAction: {
                         deleteData()
-                    }, label: {
-                        Label("Delete all data", systemImage: "trash.fill")
-                            .foregroundColor(.red)
-                    })
+                        toggleDeleteDataAlert()
+                    }, primaryActionTitle: "Yes")
                 }
             }
             .navigationTitle("Settings")
         }
         
+    }
+    
+    func toggleDeleteDataAlert() {
+        withAnimation {
+            deleteDataAlert.toggle()
+        }
     }
     
     func deleteData() {

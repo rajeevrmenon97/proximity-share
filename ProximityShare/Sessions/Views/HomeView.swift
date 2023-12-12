@@ -20,32 +20,39 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack(path: $sessionViewModel.navigationPath) {
-            VStack {
-                List {
-                    ForEach(sessions, id: \.id) { session in
-                        SessionListItem(session)
-                            .overlay {
-                                NavigationLink("", value: session.id)
-                                    .opacity(0)
-                            }
+            ZStack {
+                VStack {
+                    List {
+                        ForEach(sessions, id: \.id) { session in
+                            SessionListItem(session)
+                                .overlay {
+                                    NavigationLink("", value: session.id)
+                                        .opacity(0)
+                                }
+                        }
+                    }
+                    .listStyle(GroupedListStyle())
+                    .navigationDestination(for: String.self) { id in
+                        SessionView(session: self.sessions.first(where: {$0.id == id})!)
                     }
                 }
-                .listStyle(GroupedListStyle())
-                .navigationDestination(for: String.self) { id in
-                    SessionView(session: self.sessions.first(where: {$0.id == id})!)
+                
+                if showNewSessionAlert {
+                    CustomAlertView(title: "Host Session", description: "", cancelAction: {
+                        toggleNewSessionAlert()
+                    }, cancelActionTitle: "Cancel", primaryAction: {
+                        if !newSessionNameTextField.isEmpty {
+                            sessionViewModel.startNewSession(newSessionNameTextField)
+                            toggleNewSessionAlert()
+                        }
+                    }, primaryActionTitle: "Host", customContent: VStack {
+                        TextField("Session name", text: $newSessionNameTextField)
+                            .textFieldStyle(.roundedBorder)
+                            .padding([.horizontal, .bottom])
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    })
                 }
-            }
-            .alert("Host Session", isPresented: $showNewSessionAlert) {
-                TextField("Session name", text: $newSessionNameTextField)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                Button("Create Chat", action: {
-                    if !newSessionNameTextField.isEmpty {
-                        sessionViewModel.startNewSession(newSessionNameTextField)
-                    }
-                    showNewSessionAlert = false
-                })
-                Button("Cancel", role: .cancel) { }
             }
             .sheet(isPresented: $showSessionSearch, content: {
                 SessionSearchView()
@@ -63,7 +70,7 @@ struct HomeView: View {
                     Menu(content: {
                         Button("Host", action: {
                             newSessionNameTextField = ""
-                            showNewSessionAlert = true
+                            toggleNewSessionAlert()
                         })
                         Button("Join", action: {
                             sessionViewModel.startLookingForSessions()
@@ -72,6 +79,12 @@ struct HomeView: View {
                     }, label: {Label("", systemImage: "plus")})
                 }
             }
+        }
+    }
+    
+    func toggleNewSessionAlert() {
+        withAnimation {
+            showNewSessionAlert.toggle()
         }
     }
 }
