@@ -163,6 +163,16 @@ class SessionViewModel: ObservableObject {
         self.navigationPath.append(session.id)
     }
     
+    func deleteSession(_ sessionID: String) {
+        do {
+            try self.modelContext.delete(model: SharingSession.self, where: #Predicate { session in
+                session.id == sessionID
+            })
+        } catch {
+            self.logger.error("Error while deleting session: \(String(describing: error))")
+        }
+    }
+    
     func startNewSession(_ sessionName: String) {
         self.sessionManager.startAdvertising(user: MCUser(id: preferences.userID, name: preferences.userDisplayName, aboutMe: preferences.userAboutMe), sessionName: sessionName)
         if let sessionDetails = self.sessionManager.getSessionDetails() {

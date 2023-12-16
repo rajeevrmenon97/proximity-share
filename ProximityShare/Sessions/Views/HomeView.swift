@@ -15,6 +15,7 @@ struct HomeView: View {
     @State var newSessionNameTextField = ""
     @State var showNewSessionAlert = false
     @State var showSessionSearch = false
+    @State var editMode = EditMode.inactive
     
     @Query var sessions: [SharingSession]
     
@@ -30,6 +31,11 @@ struct HomeView: View {
                                         .opacity(0)
                                 }
                         }
+                        .onDelete(perform: { indexSet in
+                            for index in indexSet {
+                                sessionViewModel.deleteSession(sessions[index].id)
+                            }
+                        })
                     }
                     .listStyle(GroupedListStyle())
                     .navigationDestination(for: String.self) { id in
@@ -62,8 +68,7 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("Edit")
-                        .foregroundStyle(.blue)
+                    EditButton()
                 }
                 ToolbarItem(placement: .principal) {
                     Text("Sessions")
@@ -81,6 +86,7 @@ struct HomeView: View {
                     }, label: {Label("", systemImage: "plus")})
                 }
             }
+            .environment(\.editMode, $editMode)
         }
     }
     
