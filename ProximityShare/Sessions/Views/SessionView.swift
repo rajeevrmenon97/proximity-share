@@ -30,7 +30,7 @@ struct SessionView: View {
             ScrollViewReader { scrollViewReader in
                 List {
                     ForEach(events) { event in
-                        ItemBubble(event: event, isSelfMessage: preferences.userID == event.user!.id)
+                        ItemBubble(event: event, isSelfMessage: preferences.userID == event.user?.id ?? "")
                             .id(event.id)
                             .listRowSeparator(.hidden)
                     }

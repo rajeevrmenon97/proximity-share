@@ -20,11 +20,11 @@ struct SessionListItem: View {
     var latestMessage: String {
         if let lastEvent = session.events.sorted(by: { event1, event2 in
             event1.timestamp < event2.timestamp
-        }).last {
+        }).last, let user = lastEvent.user {
             if lastEvent.contentType == .message {
-                return "\(lastEvent.user!.name): \(lastEvent.content)"
+                return "\(user.name): \(lastEvent.content)"
             } else if lastEvent.contentType == .fileURL {
-                return "\(lastEvent.user!.name): Attachment"
+                return "\(user.name): Attachment"
             }
         }
         return ""
@@ -78,12 +78,4 @@ struct SessionListItem: View {
             currentDate = Date()
         })
     }
-}
-
-#Preview {
-    List {
-        SessionListItem(SharingSession(id: "1", name: "Session 1"))
-        SessionListItem(SharingSession(id: "2", name: "Session 2"))
-    }
-    .listStyle(GroupedListStyle())
 }

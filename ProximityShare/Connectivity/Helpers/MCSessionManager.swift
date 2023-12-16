@@ -14,7 +14,7 @@ class MCSessionManager: NSObject {
     private static let serviceType = "rrm-proxshare"
     private static let inviteTimeout: TimeInterval = 30
     
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "MultiPeerSession")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "MultiPeerSession")
     
     private var session: MCSession?
     private var serviceAdvertiser: MCNearbyServiceAdvertiser?
@@ -43,7 +43,6 @@ class MCSessionManager: NSObject {
     private func startNewSession(user: MCUser, sessionName: String = "") {
         let peerID = MCPeerID(displayName: user.id)
         self.session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .none)
-        self.session!.delegate = self
         self.peerID = peerID
         self.localUser = user
         
@@ -54,10 +53,16 @@ class MCSessionManager: NSObject {
             self.sessionDetails = sessionDetails
         }
         self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: discoveryInfo, serviceType: Self.serviceType)
-        self.serviceAdvertiser!.delegate = self
-        
         self.serviceBrowser = MCNearbyServiceBrowser(peer: peerID, serviceType: Self.serviceType)
-        self.serviceBrowser!.delegate = self
+        
+        if let session = self.session, let serviceAdvertiser = self.serviceAdvertiser, let serviceBrowser = self.serviceBrowser {
+            session.delegate = self
+            serviceAdvertiser.delegate = self
+            serviceBrowser.delegate = self
+        } else {
+            self.logger.error("Error occured while starting session: Failed to initialize session, advertiser and browser")
+            self.resetSession()
+        }
     }
     
     // Function to reset session
@@ -206,22 +211,19 @@ class MCSessionManager: NSObject {
         return nil
     }
     
-    func sendResource(url: URL, name: String) -> [Progress]? {
-        var progresses: [Progress]? = nil
+    func sendResource(url: URL, name: String) {
+        var progresses = [Progress]()
         if let session = self.session, !session.connectedPeers.isEmpty {
-            progresses = [Progress]()
             for peer in session.connectedPeers {
-                let progress = session.sendResource(at: url, withName: name, toPeer: peer) { error in
+                session.sendResource(at: url, withName: name, toPeer: peer) { error in
                     if let error = error {
                         self.logger.error("Error sending the resource \(String(describing: error))")
                     }
                     self.logger.debug("Queued sending resources successfully")
                 }
-                progresses!.append(progress!)
             }
         }
-        print("Done initiating send resource")
-        return progresses
+        self.logger.info("Done initiating send resource")
     }
 }
 
@@ -286,9 +288,9 @@ extension MCSessionManager: MCSessionDelegate {
         switch state {
         case .connected:
             self.sessionState = .connected
-            if !self.isLeader() && self.isInviteSent && peerID == self.tentativeSessionDetails?.leaderPeerID {
+            if let tentativeSessionDetails = self.tentativeSessionDetails, !self.isLeader() && self.isInviteSent && peerID == tentativeSessionDetails.leaderPeerID {
                 self.sessionDetails = tentativeSessionDetails
-                self.updates.send(MCEventUpdate(joinedSession: tentativeSessionDetails!))
+                self.updates.send(MCEventUpdate(joinedSession: tentativeSessionDetails))
                 self.cancelInvite()
             }
             self.sendIdentity()
@@ -301,8 +303,8 @@ extension MCSessionManager: MCSessionDelegate {
             } else if self.sessionState == .connected {
                 if let session = self.session, session.connectedPeers.isEmpty {
                     self.sessionState = .notConnected
-                    if !self.isLeader() {
-                        self.updates.send(MCEventUpdate(joinedSession: self.sessionDetails!, disconnect: true))
+                    if let sessionDetails = self.sessionDetails, !self.isLeader() {
+                        self.updates.send(MCEventUpdate(joinedSession: sessionDetails, disconnect: true))
                     }
                 }
             }

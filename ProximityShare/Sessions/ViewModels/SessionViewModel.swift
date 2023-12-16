@@ -40,7 +40,7 @@ class SessionViewModel: ObservableObject {
     }()
     
     private var cancellables: Set<AnyCancellable> = []
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SessionViewModel")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "SessionViewModel")
     
     init(sessionManager: MCSessionManager, preferences: Preferences, modelContainer: ModelContainer) {
         self.sessionManager = sessionManager
@@ -59,12 +59,12 @@ class SessionViewModel: ObservableObject {
         switch eventUpdate.type {
         case .foundPeer:
             if let sessionDetails = eventUpdate.sessionDetails {
-                self.availableSessions.append(eventUpdate.sessionDetails!)
+                self.availableSessions.append(sessionDetails)
                 self.logger.debug("Session found: \(sessionDetails.name)")
             }
         case .lostPeer:
-            if let sessionDetails = eventUpdate.sessionDetails {
-                self.availableSessions.remove(at: self.availableSessions.firstIndex(where: {$0.id == sessionDetails.id})!)
+            if let sessionDetails = eventUpdate.sessionDetails, let index = self.availableSessions.firstIndex(where: {$0.id == sessionDetails.id}) {
+                self.availableSessions.remove(at: index)
                 self.logger.debug("Session lost: \(sessionDetails.name)")
             }
         case .receivedInvite:
@@ -73,8 +73,8 @@ class SessionViewModel: ObservableObject {
                 self.logger.debug("Received join request from \(user.name)")
             }
         case .inviteExpired:
-            if let user = eventUpdate.user {
-                self.joinRequestUsers.remove(at: self.joinRequestUsers.firstIndex(where: {$0.id == eventUpdate.user!.id})!)
+            if let user = eventUpdate.user, let index = self.joinRequestUsers.firstIndex(where: {$0.id == user.id}) {
+                self.joinRequestUsers.remove(at: index)
                 self.logger.debug("Join request from \(user.name) expired")
             }
         case .inviteRejected:
@@ -152,15 +152,15 @@ class SessionViewModel: ObservableObject {
     }
     
     func addSession(sessionDetails: MCSessionDetails) {
-        var session: SharingSession?
+        var session: SharingSession
         if let existingSession = self.getSession(sessionDetails.id) {
             session = existingSession
         } else {
             session = SharingSession(id: sessionDetails.id, name: sessionDetails.name)
-            self.modelContext.insert(session!)
+            self.modelContext.insert(session)
         }
-        self.activeSession = session!
-        self.navigationPath.append(session!.id)
+        self.activeSession = session
+        self.navigationPath.append(session.id)
     }
     
     func startNewSession(_ sessionName: String) {
@@ -261,7 +261,7 @@ class SessionViewModel: ObservableObject {
     func sendImage(_ data: Data) {
         let eventID = UUID().uuidString
         if let session = self.activeSession, let fileName = self.saveAttachment(data) {
-            _ = self.sessionManager.sendResource(url: Self.attachmentsDirectory.appendingPathComponent(fileName), name: fileName)
+            self.sessionManager.sendResource(url: Self.attachmentsDirectory.appendingPathComponent(fileName), name: fileName)
             let event = SharingSessionEvent(
                 id: eventID,
                 type: .message,

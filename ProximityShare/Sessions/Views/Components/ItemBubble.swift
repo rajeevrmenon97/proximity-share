@@ -39,7 +39,7 @@ struct ItemBubble: View {
                 VStack(alignment: .leading) {
                     HStack {
                         Spacer()
-                        Text(event.user!.name)
+                        Text(event.user?.name ?? "")
                             .bold()
                             .font(.caption)
                     }

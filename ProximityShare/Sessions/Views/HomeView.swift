@@ -33,7 +33,9 @@ struct HomeView: View {
                     }
                     .listStyle(GroupedListStyle())
                     .navigationDestination(for: String.self) { id in
-                        SessionView(session: self.sessions.first(where: {$0.id == id})!)
+                        if let session = self.sessions.first(where: {$0.id == id}) {
+                            SessionView(session: session)
+                        }
                     }
                 }
                 

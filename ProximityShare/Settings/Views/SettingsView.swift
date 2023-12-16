@@ -16,7 +16,7 @@ struct SettingsView: View {
     
     @State var deleteDataAlert = false
     
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SettingsView")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "SettingsView")
     
     var body: some View {
         NavigationStack {
