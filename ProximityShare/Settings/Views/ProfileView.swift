@@ -73,7 +73,6 @@ struct ProfileView: View {
                                             name: preferences.userDisplayName,
                                             aboutMe: preferences.userAboutMe)
                             modelContext.insert(user)
-                            // TODO: Update display name in session?
                         }
                     })
                     .buttonStyle(.bordered)
