@@ -57,15 +57,27 @@ struct SessionView: View {
                             } label: {
                                 Label("Photos", systemImage: "photo")
                             }
-                        }, label: {Label("", systemImage: "plus")})
+                        }, label: {
+                            Label("", systemImage: "plus")
+                                .foregroundStyle(.secondary)
+                                .font(.title)
+                        })
+                        .foregroundStyle(.secondary)
                         TextField("Type your message", text: $messageTextField, axis: .vertical)
-                            .textFieldStyle(.roundedBorder)
-                            .onSubmit {
-                                if !messageTextField.isEmpty {
-                                    sessionViewModel.sendMessage(messageTextField)
-                                    messageTextField = ""
-                                }
+                            .frame(maxWidth: .infinity)
+                            .padding(6)
+                            .overlay{
+                                RoundedRectangle(cornerRadius: 10.0)
+                                    .strokeBorder(.secondary, style: StrokeStyle(lineWidth: 2.0))
                             }
+                            .onSubmit{
+                                sendMessage()
+                            }
+                        Button("", systemImage: "chevron.right.circle") {
+                            sendMessage()
+                        }
+                        .font(.title)
+                        .foregroundStyle(.secondary)
                     }
                 } else {
                     Text("Disconnected from chat")
@@ -100,7 +112,13 @@ struct SessionView: View {
                 })
             }
         }
-
+    }
+    
+    func sendMessage() {
+        if !messageTextField.isEmpty {
+            sessionViewModel.sendMessage(messageTextField)
+            messageTextField = ""
+        }
     }
 }
 

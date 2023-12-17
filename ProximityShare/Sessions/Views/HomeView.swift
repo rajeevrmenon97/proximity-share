@@ -79,14 +79,12 @@ struct HomeView: View {
             .sheet(isPresented: $showSessionSearch, content: {
                 SessionSearchView()
             })
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Sessions")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     EditButton()
                 }
-                ToolbarItem(placement: .principal) {
-                    Text("Sessions")
-                }
+                
                 ToolbarItem(placement: .primaryAction) {
                     Menu(content: {
                         Button("Host", action: {
