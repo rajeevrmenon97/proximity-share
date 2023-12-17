@@ -21,4 +21,18 @@ class FileStorageHelper {
         }
         return nil
     }
+    
+    func deleteFile(url: URL) {
+        let fileManager = FileManager.default
+        
+        do {
+            if fileManager.fileExists(atPath: url.path) {
+                try fileManager.removeItem(at: url)
+            } else {
+                self.logger.warning("File does not exist at \(url)")
+            }
+        } catch {
+            self.logger.error("Error deleting file: \(error)")
+        }
+    }
 }

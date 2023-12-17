@@ -18,27 +18,10 @@ class SessionViewModel: ObservableObject {
     @Published var isInviteSent = false
     @Published var joinRequestUsers = [MCUser]()
     @Published var activeSession: SharingSession?
-    @Published var resourceReceiveProgress = [String: Progress]()
     
     private var sessionManager: MCSessionManager
     private var preferences: Preferences
     private var modelContext: ModelContext
-    
-    private static let attachmentsDirectory: URL = {
-        do {
-            let path = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("attachments")
-            if !FileManager.default.fileExists(atPath: path.path) {
-                do {
-                    try FileManager.default.createDirectory(atPath: path.path, withIntermediateDirectories: true, attributes: nil)
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
-            return path
-        } catch {
-            fatalError("Cannot get document directory path")
-        }
-    }()
     
     private var cancellables: Set<AnyCancellable> = []
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "SessionViewModel")
@@ -106,7 +89,7 @@ class SessionViewModel: ObservableObject {
                 self.addEvent(event, session: session, userID: user.id)
             }
         case .startedReceivingResource:
-            if let user = eventUpdate.user, let progress = eventUpdate.progress, let id = eventUpdate.id, let session = self.activeSession, let contentType = eventUpdate.contentType {
+            if let user = eventUpdate.user, let id = eventUpdate.id, let session = self.activeSession, let contentType = eventUpdate.contentType {
                 let event = SharingSessionEvent(
                     id: id,
                     type: .message,
@@ -115,7 +98,6 @@ class SessionViewModel: ObservableObject {
                     contentType: contentType,
                     content: "",
                     timestamp: Date())
-                resourceReceiveProgress[id] = progress
                 self.addEvent(event, session: session, userID: user.id)
             }
         case .finishedReceivingResource:
@@ -242,26 +224,6 @@ class SessionViewModel: ObservableObject {
         }
     }
     
-    func loadAttachment(_ fileName: String) -> Data? {
-        do {
-            return try Data(contentsOf: Self.attachmentsDirectory.appendingPathComponent(fileName))
-        } catch {
-            self.logger.error("Error reading file \(fileName): \(String(describing: error))")
-        }
-        return nil
-    }
-    
-    func saveAttachment(_ data: Data, fileName: String = UUID().uuidString) -> String? {
-        do {
-            let savePath = Self.attachmentsDirectory.appendingPathComponent(fileName)
-            try data.write(to: savePath, options: [.atomic, .completeFileProtection])
-            return fileName
-        } catch {
-            self.logger.error("Error writing file: \(String(describing: error))")
-        }
-        return nil
-    }
-    
     func sendImage(_ data: Data) {
         if let session = self.activeSession, let id = self.sessionManager.sendImage(data) {
             let event = SharingSessionEvent(
@@ -274,6 +236,20 @@ class SessionViewModel: ObservableObject {
                 timestamp: Date())
             event.attachment = data
             self.addEvent(event, session: session, userID: preferences.userID)
+        }
+    }
+    
+    func deleteData() {
+        do {
+            self.sessionManager.resetSession()
+            self.navigationPath.removeAll()
+            try modelContext.delete(model: SharingSessionEvent.self)
+            try modelContext.delete(model: User.self)
+            try modelContext.delete(model: SharingSession.self)
+            let user = User(id: preferences.userID, name: preferences.userDisplayName, aboutMe: preferences.userAboutMe)
+            modelContext.insert(user)
+        } catch {
+            logger.error("Error while deleting data: \(String(describing: error))")
         }
     }
 }

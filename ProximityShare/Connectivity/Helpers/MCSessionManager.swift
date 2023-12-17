@@ -67,7 +67,7 @@ class MCSessionManager: NSObject {
     }
     
     // Function to reset session
-    private func resetSession() {
+    func resetSession() {
         self.stopBrowsing()
         self.stopAdvertising()
         self.sessionDetails = nil
@@ -183,29 +183,25 @@ class MCSessionManager: NSObject {
     }
     
     func sendIdentity() {
-        if let user = self.localUser, let sessionDetails = self.sessionDetails, let encodedUserDetails = JsonUtils.stringEncode(user) {
+        if let user = self.localUser, let encodedUserDetails = JsonUtils.stringEncode(user) {
             let event = MCEvent(
                 id: UUID().uuidString,
                 userID: user.id,
-                sessionID: sessionDetails.id,
                 type: .identity,
                 contentType: .json,
-                content: encodedUserDetails,
-                timestamp: Date())
+                content: encodedUserDetails)
             self.sendEvent(event)
         }
     }
     
     func sendMessage(_ content: String) -> String? {
-        if let user = self.localUser, let sessionDetails = self.sessionDetails {
+        if let user = self.localUser {
             let event = MCEvent(
                 id: UUID().uuidString,
                 userID: user.id,
-                sessionID: sessionDetails.id,
                 type: .message,
                 contentType: .message,
-                content: content,
-                timestamp: Date())
+                content: content)
             self.sendEvent(event)
             return event.id
         }
@@ -213,14 +209,16 @@ class MCSessionManager: NSObject {
     }
     
     func sendResource(url: URL, name: String) {
-        var progresses = [Progress]()
         if let session = self.session, !session.connectedPeers.isEmpty {
             for peer in session.connectedPeers {
                 session.sendResource(at: url, withName: name, toPeer: peer) { error in
                     if let error = error {
                         self.logger.error("Error sending the resource \(String(describing: error))")
                     }
-                    self.logger.debug("Queued sending resources successfully")
+                    if let lastPeer = session.connectedPeers.last, lastPeer.displayName == peer.displayName {
+                        self.logger.debug("Queued sending resources successfully")
+                        self.fileStorageHelper.deleteFile(url: url)
+                    }
                 }
             }
         }
@@ -228,15 +226,13 @@ class MCSessionManager: NSObject {
     }
     
     func sendImage(_ data: Data) -> String? {
-        if let user = self.localUser, let sessionDetails = self.sessionDetails {
+        if let user = self.localUser {
             let event = MCEvent(
                 id: UUID().uuidString,
                 userID: user.id,
-                sessionID: sessionDetails.id,
                 type: .message,
                 contentType: .image,
-                content: "",
-                timestamp: Date())
+                content: "")
             if let encodedEvent = JsonUtils.stringEncode(event), let url = self.fileStorageHelper.writeDataToTemporaryFile(data: data, fileName: event.id) {
                 self.sendResource(url: url, name: encodedEvent)
                 return event.id
@@ -369,7 +365,7 @@ extension MCSessionManager: MCSessionDelegate {
         } else {
             do {
                 if let url = localURL {
-                    let data = try Data(contentsOf: localURL!)
+                    let data = try Data(contentsOf: url)
                     if let event: MCEvent = JsonUtils.stringDecode(resourceName) {
                         self.updates.send(MCEventUpdate(id: event.id, userID: event.userID, contentType: event.contentType, data: data))
                     }

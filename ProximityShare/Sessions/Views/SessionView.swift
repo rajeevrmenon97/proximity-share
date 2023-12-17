@@ -80,8 +80,6 @@ struct SessionView: View {
                 if let data = try? await pickedImage?.loadTransferable(type: Data.self) {
                     sessionViewModel.sendImage(data)
                     pickedImage = nil
-                } else {
-                    print("Failed")
                 }
             }
         }

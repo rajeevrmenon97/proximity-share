@@ -21,20 +21,16 @@ enum ContentType: Int, Codable {
 class MCEvent: Codable {
     var id: String
     var userID: String
-    var sessionID: String
     var type: EventType
     var contentType: ContentType
     var content: String
-    var timestamp: Date
     
-    init(id: String, userID: String, sessionID: String, type: EventType, contentType: ContentType, content: String, timestamp: Date) {
+    init(id: String, userID: String, type: EventType, contentType: ContentType, content: String) {
         self.id = id
         self.userID = userID
-        self.sessionID = sessionID
         self.type = type
         self.contentType = contentType
         self.content = content
-        self.timestamp = timestamp
     }
 }
 
