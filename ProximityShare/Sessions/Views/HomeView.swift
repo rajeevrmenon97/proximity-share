@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import AlertToast
 
 struct HomeView: View {
     @EnvironmentObject private var sessionViewModel: SessionViewModel
@@ -101,6 +102,13 @@ struct HomeView: View {
             }
             .environment(\.editMode, $editMode)
         }
+        .toast(isPresenting: $sessionViewModel.showToast, duration: 2, tapToDismiss: true, alert: {
+            AlertToast(
+                displayMode: .banner(.pop),
+                type: sessionViewModel.isToastError ? .error(Color.red) : .systemImage("info.circle", .primary),
+                title: sessionViewModel.toastMessage,
+                style: .style(titleFont: .body))
+        })
     }
     
     func toggleNewSessionAlert() {

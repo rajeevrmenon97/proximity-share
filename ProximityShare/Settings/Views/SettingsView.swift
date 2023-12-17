@@ -8,6 +8,7 @@
 import SwiftUI
 import os
 import SwiftData
+import AlertToast
 
 struct SettingsView: View {
     
@@ -16,6 +17,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     
     @State var deleteDataAlert = false
+    @State var showDeleteDataToast = false
     
     @Query var sessions: [SharingSession]
     
@@ -66,11 +68,26 @@ struct SettingsView: View {
                     }, cancelActionTitle: "Cancel", primaryAction: {
                         self.sessionViewModel.deleteData()
                         toggleDeleteDataAlert()
+                        showDeleteDataToast = true
                     }, primaryActionTitle: "Yes")
                 }
             }
             .navigationTitle("Settings")
         }
+        .toast(isPresenting: $showDeleteDataToast, duration: 1, tapToDismiss: true, alert: {
+            AlertToast(
+                displayMode: .alert,
+                type: .complete(Color.green),
+                title: "Success!",
+                style: .style(titleFont: .body))
+        })
+        .toast(isPresenting: $sessionViewModel.showToast, duration: 2, tapToDismiss: true, alert: {
+            AlertToast(
+                displayMode: .banner(.pop),
+                type: sessionViewModel.isToastError ? .error(Color.red) : .systemImage("info.circle", .primary),
+                title: sessionViewModel.toastMessage,
+                style: .style(titleFont: .body))
+        })
         
     }
     
@@ -82,7 +99,6 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView()
-        .environmentObject(Preferences())
+    contentViewPreview
 }
 

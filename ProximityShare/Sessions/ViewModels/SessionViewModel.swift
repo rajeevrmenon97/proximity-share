@@ -18,6 +18,9 @@ class SessionViewModel: ObservableObject {
     @Published var isInviteSent = false
     @Published var joinRequestUsers = [MCUser]()
     @Published var activeSession: SharingSession?
+    @Published var showToast = false
+    @Published var isToastError = false
+    @Published var toastMessage = ""
     
     private var sessionManager: MCSessionManager
     private var preferences: Preferences
@@ -39,6 +42,12 @@ class SessionViewModel: ObservableObject {
         self.logger.debug("DB location: \(appSupportDir.absoluteString)")
     }
     
+    func sendToast(message: String, isError: Bool) {
+        self.toastMessage = message
+        self.isToastError = isError
+        self.showToast = true
+    }
+    
     func handleUpdates(_ eventUpdate: MCEventUpdate) {
         switch eventUpdate.type {
         case .foundPeer:
@@ -55,6 +64,7 @@ class SessionViewModel: ObservableObject {
             if let user = eventUpdate.user {
                 self.joinRequestUsers.append(user)
                 self.logger.debug("Received join request from \(user.name)")
+                self.sendToast(message: "New join request!", isError: false)
             }
         case .inviteExpired:
             if let user = eventUpdate.user, let index = self.joinRequestUsers.firstIndex(where: {$0.id == user.id}) {
@@ -63,6 +73,7 @@ class SessionViewModel: ObservableObject {
             }
         case .inviteRejected:
             self.isInviteSent = false
+            self.sendToast(message: "Join request rejected!", isError: true)
         case .joinedSession:
             if let sessionDetails = eventUpdate.sessionDetails {
                 self.stopLookingForSessions()
@@ -70,6 +81,7 @@ class SessionViewModel: ObservableObject {
             }
         case .leftSession:
             self.logger.debug("Disconnected from session")
+            self.sendToast(message: "Disconnected from session \(self.activeSession?.name ?? "")", isError: true)
             self.activeSession = nil
         case .userUpdate:
             if let user = eventUpdate.user {
@@ -113,6 +125,7 @@ class SessionViewModel: ObservableObject {
             return result.first
         } catch {
             self.logger.error("Error while fetching event: \(String(describing: error))")
+            self.sendToast(message: "Error while fetching message details", isError: true)
         }
         return nil
     }
@@ -123,6 +136,7 @@ class SessionViewModel: ObservableObject {
             return result.first
         } catch {
             self.logger.error("Error while fetching session: \(String(describing: error))")
+            self.sendToast(message: "Error while fetching session details", isError: true)
         }
         return nil
     }
@@ -146,6 +160,7 @@ class SessionViewModel: ObservableObject {
             })
         } catch {
             self.logger.error("Error while deleting session: \(String(describing: error))")
+            self.sendToast(message: "Error while deleting session", isError: true)
         }
     }
     
@@ -155,6 +170,7 @@ class SessionViewModel: ObservableObject {
             self.addSession(sessionDetails: sessionDetails)
         } else {
             logger.error("Failed to get session details after starting to advertise")
+            self.sendToast(message: "Error while starting new session", isError: true)
         }
     }
     
@@ -199,6 +215,7 @@ class SessionViewModel: ObservableObject {
             return result.first
         } catch {
             self.logger.error("Error while fetching user: \(String(describing: error))")
+            self.sendToast(message: "Error while fetching user details", isError: true)
         }
         return nil
     }
@@ -250,6 +267,7 @@ class SessionViewModel: ObservableObject {
             modelContext.insert(user)
         } catch {
             logger.error("Error while deleting data: \(String(describing: error))")
+            self.sendToast(message: "Error while deleting data", isError: true)
         }
     }
 }
