@@ -10,8 +10,10 @@ import SwiftData
 
 @main
 struct ProximityShareApp: App {
-    @StateObject private var preferences = Preferences()
-    private var sessionManager = MCSessionManager()
+    @AppStorage("is-dark-mode") var isDarkMode = false
+    private var preferences: Preferences
+    private var sessionManager: MCSessionManager
+    private var sessionViewModel: SessionViewModel
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema(PersistenceSchema.models)
@@ -24,12 +26,18 @@ struct ProximityShareApp: App {
         }
     }()
     
+    init() {
+        self.preferences = Preferences()
+        self.sessionManager = MCSessionManager()
+        self.sessionViewModel = SessionViewModel(sessionManager: self.sessionManager, preferences: self.preferences, modelContainer: sharedModelContainer)
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(preferences.isDarkMode ? .dark : .light)
+                .preferredColorScheme(isDarkMode ? .dark : .light)
                 .environmentObject(self.preferences)
-                .environmentObject(SessionViewModel(sessionManager: self.sessionManager, preferences: self.preferences, modelContainer: sharedModelContainer))
+                .environmentObject(self.sessionViewModel)
                 .modelContainer(sharedModelContainer)
         }
     }
