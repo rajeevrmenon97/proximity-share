@@ -61,6 +61,19 @@ struct HomeView: View {
                             .autocorrectionDisabled()
                     })
                 }
+                
+                if sessions.isEmpty {
+                    VStack {
+                        Spacer()
+                        Image(systemName: "wifi")
+                            .font(.system(size: 200))
+                        Text("No sessions")
+                            .padding()
+                        Text("Select + to start a new session")
+                        Spacer()
+                    }
+                    .opacity(0.3)
+                }
             }
             .sheet(isPresented: $showSessionSearch, content: {
                 SessionSearchView()
