@@ -58,7 +58,7 @@ struct SessionView: View {
                                 Label("Photos", systemImage: "photo")
                             }
                         }, label: {Label("", systemImage: "plus")})
-                        TextField("Type your message", text: $messageTextField)
+                        TextField("Type your message", text: $messageTextField, axis: .vertical)
                             .textFieldStyle(.roundedBorder)
                             .onSubmit {
                                 if !messageTextField.isEmpty {
