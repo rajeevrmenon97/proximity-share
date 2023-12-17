@@ -18,6 +18,7 @@ class SessionViewModel: ObservableObject {
     @Published var isInviteSent = false
     @Published var joinRequestUsers = [MCUser]()
     @Published var activeSession: SharingSession?
+    @Published var resourceReceiveProgress = [String: Progress]()
     
     private var sessionManager: MCSessionManager
     private var preferences: Preferences
@@ -105,28 +106,21 @@ class SessionViewModel: ObservableObject {
                 self.addEvent(event, session: session, userID: user.id)
             }
         case .startedReceivingResource:
-            if let user = eventUpdate.user, let progress = eventUpdate.progress, let id = eventUpdate.content, let session = self.activeSession {
+            if let user = eventUpdate.user, let progress = eventUpdate.progress, let id = eventUpdate.id, let session = self.activeSession, let contentType = eventUpdate.contentType {
                 let event = SharingSessionEvent(
                     id: id,
                     type: .message,
                     user: nil,
                     session: nil,
-                    contentType: .fileURL,
+                    contentType: contentType,
                     content: "",
                     timestamp: Date())
-                event.progress = progress
+                resourceReceiveProgress[id] = progress
                 self.addEvent(event, session: session, userID: user.id)
             }
         case .finishedReceivingResource:
-            if let url = eventUpdate.url, let id = eventUpdate.content, let event = self.getEvent(id) {
-                do {
-                    let data = try Data(contentsOf: url)
-                    _ = self.saveAttachment(data, fileName: id)
-                    event.content = id
-                    event.attachment = data
-                } catch {
-                    self.logger.error("Error receiving resource: \(String(describing: error))")
-                }
+            if let data = eventUpdate.data, let id = eventUpdate.id, let event = self.getEvent(id) {
+                event.attachment = data
             }
         }
     }
@@ -269,16 +263,14 @@ class SessionViewModel: ObservableObject {
     }
     
     func sendImage(_ data: Data) {
-        let eventID = UUID().uuidString
-        if let session = self.activeSession, let fileName = self.saveAttachment(data) {
-            self.sessionManager.sendResource(url: Self.attachmentsDirectory.appendingPathComponent(fileName), name: fileName)
+        if let session = self.activeSession, let id = self.sessionManager.sendImage(data) {
             let event = SharingSessionEvent(
-                id: eventID,
+                id: id,
                 type: .message,
                 user: nil,
                 session: nil,
-                contentType: .fileURL,
-                content: fileName,
+                contentType: .image,
+                content: "",
                 timestamp: Date())
             event.attachment = data
             self.addEvent(event, session: session, userID: preferences.userID)

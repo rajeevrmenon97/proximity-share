@@ -15,6 +15,7 @@ class MCSessionManager: NSObject {
     private static let inviteTimeout: TimeInterval = 30
     
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "MultiPeerSession")
+    private let fileStorageHelper = FileStorageHelper()
     
     private var session: MCSession?
     private var serviceAdvertiser: MCNearbyServiceAdvertiser?
@@ -225,6 +226,24 @@ class MCSessionManager: NSObject {
         }
         self.logger.info("Done initiating send resource")
     }
+    
+    func sendImage(_ data: Data) -> String? {
+        if let user = self.localUser, let sessionDetails = self.sessionDetails {
+            let event = MCEvent(
+                id: UUID().uuidString,
+                userID: user.id,
+                sessionID: sessionDetails.id,
+                type: .message,
+                contentType: .image,
+                content: "",
+                timestamp: Date())
+            if let encodedEvent = JsonUtils.stringEncode(event), let url = self.fileStorageHelper.writeDataToTemporaryFile(data: data, fileName: event.id) {
+                self.sendResource(url: url, name: encodedEvent)
+                return event.id
+            }
+        }
+        return nil
+    }
 }
 
 extension MCSessionManager: MCNearbyServiceAdvertiserDelegate {
@@ -337,7 +356,9 @@ extension MCSessionManager: MCSessionDelegate {
     // Started receiving a resource from peer
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
         logger.debug("Started receiving resouce \(resourceName) from \(peerID.displayName)")
-        self.updates.send(MCEventUpdate(name: resourceName, progress: progress, userID: peerID.displayName, finished: false, url: nil))
+        if let event: MCEvent = JsonUtils.stringDecode(resourceName) {
+            self.updates.send(MCEventUpdate(id: event.id, userID: event.userID, contentType: event.contentType, progress: progress))
+        }
     }
     
     // Finished receiving a resource from peer
@@ -346,7 +367,16 @@ extension MCSessionManager: MCSessionDelegate {
         if let error = error {
             logger.error("Error finishing receiving resource \(resourceName) from \(peerID.displayName): \(String(describing: error))")
         } else {
-            self.updates.send(MCEventUpdate(name: resourceName, progress: nil, userID: peerID.displayName, finished: true, url: localURL))
+            do {
+                if let url = localURL {
+                    let data = try Data(contentsOf: localURL!)
+                    if let event: MCEvent = JsonUtils.stringDecode(resourceName) {
+                        self.updates.send(MCEventUpdate(id: event.id, userID: event.userID, contentType: event.contentType, data: data))
+                    }
+                }
+            } catch {
+                logger.error("Error reading resource \(resourceName) from \(peerID.displayName): \(String(describing: error))")
+            }
         }
     }
     

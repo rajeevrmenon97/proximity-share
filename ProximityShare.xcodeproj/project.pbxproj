@@ -12,6 +12,7 @@
 		5D6AFAC72B285FCE00ECEDEB /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */; };
 		5D6AFACB2B286D6700ECEDEB /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AFACA2B286D6700ECEDEB /* CustomAlert.swift */; };
 		5DAA4CB32B2E6BE000B588EE /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAA4CB22B2E6BE000B588EE /* StringExtensions.swift */; };
+		5DAA4CB52B2E9DD700B588EE /* FileStorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAA4CB42B2E9DD700B588EE /* FileStorageHelper.swift */; };
 		5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809392B21144200036D23 /* ProximityShareApp.swift */; };
 		5DF8093C2B21144200036D23 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8093B2B21144200036D23 /* ContentView.swift */; };
 		5DF8093E2B21144400036D23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DF8093D2B21144400036D23 /* Assets.xcassets */; };
@@ -42,6 +43,7 @@
 		5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		5D6AFACA2B286D6700ECEDEB /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
 		5DAA4CB22B2E6BE000B588EE /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		5DAA4CB42B2E9DD700B588EE /* FileStorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStorageHelper.swift; sourceTree = "<group>"; };
 		5DF809362B21144200036D23 /* ProximityShare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProximityShare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DF809392B21144200036D23 /* ProximityShareApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximityShareApp.swift; sourceTree = "<group>"; };
 		5DF8093B2B21144200036D23 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 			children = (
 				5DF809492B2114CA00036D23 /* MCSessionManager.swift */,
 				5DF809952B222B6000036D23 /* JsonUtils.swift */,
+				5DAA4CB42B2E9DD700B588EE /* FileStorageHelper.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -325,6 +328,7 @@
 				5DF8093C2B21144200036D23 /* ContentView.swift in Sources */,
 				5DF809982B222F8500036D23 /* MCSessionInvite.swift in Sources */,
 				5DF8098F2B2218B400036D23 /* SessionSearchView.swift in Sources */,
+				5DAA4CB52B2E9DD700B588EE /* FileStorageHelper.swift in Sources */,
 				5DF8096A2B21477400036D23 /* SessionViewModel.swift in Sources */,
 				5DF809912B2219E700036D23 /* MCEventUpdate.swift in Sources */,
 				5DF809622B213ADF00036D23 /* ProfileView.swift in Sources */,

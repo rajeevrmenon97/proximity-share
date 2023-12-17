@@ -23,8 +23,8 @@ struct SessionListItem: View {
         }).last, let user = lastEvent.user {
             if lastEvent.contentType == .message {
                 return "\(user.name): \(lastEvent.content)"
-            } else if lastEvent.contentType == .fileURL {
-                return "\(user.name): Attachment"
+            } else if lastEvent.contentType == .image {
+                return "\(user.name): Image"
             }
         }
         return ""

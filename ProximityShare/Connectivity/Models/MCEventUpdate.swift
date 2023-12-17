@@ -54,21 +54,32 @@ class MCEventUpdate {
     }
     
     var id: String?
+    var contentType: ContentType?
     var content: String?
     init(id: String, message: String, userID: String) {
         self.type = .message
         self.id = id
         self.user = MCUser(id: userID, name: "", aboutMe: "")
         self.content = message
+        self.contentType = .message
     }
     
+    var data: Data?
     var progress: Progress?
-    var url: URL?
-    init(name: String, progress: Progress?, userID: String, finished: Bool, url: URL?) {
-        self.type = finished ? .finishedReceivingResource : .startedReceivingResource
-        self.content = name
-        self.progress = progress
+    
+    init(id: String, userID: String, contentType: ContentType, progress: Progress) {
+        self.type = .startedReceivingResource
+        self.id = id
         self.user = MCUser(id: userID, name: "", aboutMe: "")
-        self.url = url
+        self.contentType = contentType
+        self.progress = progress
+    }
+    
+    init(id: String, userID: String, contentType: ContentType, data: Data?) {
+        self.type = .finishedReceivingResource
+        self.id = id
+        self.data = data
+        self.user = MCUser(id: userID, name: "", aboutMe: "")
+        self.contentType = contentType
     }
 }
