@@ -31,7 +31,7 @@ struct SessionInfoView: View {
                     Section("Join Requests") {
                         ForEach(sessionViewModel.joinRequestUsers) { user in
                             HStack {
-                                DisplayPicture(name: user.name, size: 15, font: .caption)
+                                DisplayPicture(name: user.name, size: 20, font: .caption2)
                                 Text(user.name)
                                 Spacer()
                                 Button("Accept") {
