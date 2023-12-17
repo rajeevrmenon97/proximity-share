@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import AlertToast
 
 struct HomeView: View {
     @EnvironmentObject private var sessionViewModel: SessionViewModel
@@ -15,6 +16,7 @@ struct HomeView: View {
     @State var newSessionNameTextField = ""
     @State var showNewSessionAlert = false
     @State var showSessionSearch = false
+    @State var editMode = EditMode.inactive
     
     @Query var sessions: [SharingSession]
     
@@ -30,10 +32,17 @@ struct HomeView: View {
                                         .opacity(0)
                                 }
                         }
+                        .onDelete(perform: { indexSet in
+                            for index in indexSet {
+                                sessionViewModel.deleteSession(sessions[index].id)
+                            }
+                        })
                     }
                     .listStyle(GroupedListStyle())
                     .navigationDestination(for: String.self) { id in
-                        SessionView(session: self.sessions.first(where: {$0.id == id})!)
+                        if let session = self.sessions.first(where: {$0.id == id}) {
+                            SessionView(session: session)
+                        }
                     }
                 }
                 
@@ -53,19 +62,29 @@ struct HomeView: View {
                             .autocorrectionDisabled()
                     })
                 }
+                
+                if sessions.isEmpty {
+                    VStack {
+                        Spacer()
+                        Image(systemName: "wifi")
+                            .font(.system(size: 200))
+                        Text("No sessions")
+                            .padding()
+                        Text("Select + to start a new session")
+                        Spacer()
+                    }
+                    .opacity(0.3)
+                }
             }
             .sheet(isPresented: $showSessionSearch, content: {
                 SessionSearchView()
             })
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Sessions")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Text("Edit")
-                        .foregroundStyle(.blue)
+                    EditButton()
                 }
-                ToolbarItem(placement: .principal) {
-                    Text("Sessions")
-                }
+                
                 ToolbarItem(placement: .primaryAction) {
                     Menu(content: {
                         Button("Host", action: {
@@ -79,7 +98,15 @@ struct HomeView: View {
                     }, label: {Label("", systemImage: "plus")})
                 }
             }
+            .environment(\.editMode, $editMode)
         }
+        .toast(isPresenting: $sessionViewModel.showToast, duration: 2, tapToDismiss: true, alert: {
+            AlertToast(
+                displayMode: .banner(.pop),
+                type: sessionViewModel.isToastError ? .error(Color.red) : .systemImage("info.circle", .primary),
+                title: sessionViewModel.toastMessage,
+                style: .style(titleFont: .body))
+        })
     }
     
     func toggleNewSessionAlert() {

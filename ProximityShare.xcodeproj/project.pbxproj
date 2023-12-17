@@ -11,6 +11,9 @@
 		5D3D27372B22AD9900751768 /* ItemBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3D27362B22AD9900751768 /* ItemBubble.swift */; };
 		5D6AFAC72B285FCE00ECEDEB /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */; };
 		5D6AFACB2B286D6700ECEDEB /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AFACA2B286D6700ECEDEB /* CustomAlert.swift */; };
+		5DAA4CB32B2E6BE000B588EE /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAA4CB22B2E6BE000B588EE /* StringExtensions.swift */; };
+		5DAA4CB52B2E9DD700B588EE /* FileStorageHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAA4CB42B2E9DD700B588EE /* FileStorageHelper.swift */; };
+		5DAA4CB82B2EB35600B588EE /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 5DAA4CB72B2EB35600B588EE /* AlertToast */; };
 		5DF8093A2B21144200036D23 /* ProximityShareApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF809392B21144200036D23 /* ProximityShareApp.swift */; };
 		5DF8093C2B21144200036D23 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF8093B2B21144200036D23 /* ContentView.swift */; };
 		5DF8093E2B21144400036D23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DF8093D2B21144400036D23 /* Assets.xcassets */; };
@@ -40,6 +43,8 @@
 		5D3D27362B22AD9900751768 /* ItemBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemBubble.swift; sourceTree = "<group>"; };
 		5D6AFAC62B285FCD00ECEDEB /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		5D6AFACA2B286D6700ECEDEB /* CustomAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
+		5DAA4CB22B2E6BE000B588EE /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		5DAA4CB42B2E9DD700B588EE /* FileStorageHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStorageHelper.swift; sourceTree = "<group>"; };
 		5DF809362B21144200036D23 /* ProximityShare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProximityShare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DF809392B21144200036D23 /* ProximityShareApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximityShareApp.swift; sourceTree = "<group>"; };
 		5DF8093B2B21144200036D23 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -72,12 +77,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DAA4CB82B2EB35600B588EE /* AlertToast in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5DAA4CB12B2E6BCF00B588EE /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				5DAA4CB22B2E6BE000B588EE /* StringExtensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		5DF8092D2B21144200036D23 = {
 			isa = PBXGroup;
 			children = (
@@ -125,6 +139,7 @@
 			children = (
 				5DF809492B2114CA00036D23 /* MCSessionManager.swift */,
 				5DF809952B222B6000036D23 /* JsonUtils.swift */,
+				5DAA4CB42B2E9DD700B588EE /* FileStorageHelper.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -153,6 +168,7 @@
 		5DF809572B21391800036D23 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				5DAA4CB12B2E6BCF00B588EE /* Extensions */,
 				5DF809582B21393B00036D23 /* Models */,
 				5DF8095B2B21396E00036D23 /* Views */,
 			);
@@ -257,6 +273,9 @@
 			dependencies = (
 			);
 			name = ProximityShare;
+			packageProductDependencies = (
+				5DAA4CB72B2EB35600B588EE /* AlertToast */,
+			);
 			productName = ProximityShare;
 			productReference = 5DF809362B21144200036D23 /* ProximityShare.app */;
 			productType = "com.apple.product-type.application";
@@ -285,6 +304,9 @@
 				Base,
 			);
 			mainGroup = 5DF8092D2B21144200036D23;
+			packageReferences = (
+				5DAA4CB62B2EB35600B588EE /* XCRemoteSwiftPackageReference "AlertToast" */,
+			);
 			productRefGroup = 5DF809372B21144200036D23 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -314,6 +336,7 @@
 				5DF8093C2B21144200036D23 /* ContentView.swift in Sources */,
 				5DF809982B222F8500036D23 /* MCSessionInvite.swift in Sources */,
 				5DF8098F2B2218B400036D23 /* SessionSearchView.swift in Sources */,
+				5DAA4CB52B2E9DD700B588EE /* FileStorageHelper.swift in Sources */,
 				5DF8096A2B21477400036D23 /* SessionViewModel.swift in Sources */,
 				5DF809912B2219E700036D23 /* MCEventUpdate.swift in Sources */,
 				5DF809622B213ADF00036D23 /* ProfileView.swift in Sources */,
@@ -333,6 +356,7 @@
 				5DF8098D2B21AB9700036D23 /* PreviewDependencies.swift in Sources */,
 				5DF809552B2135F700036D23 /* MCUser.swift in Sources */,
 				5DF8099B2B22431500036D23 /* SessionView.swift in Sources */,
+				5DAA4CB32B2E6BE000B588EE /* StringExtensions.swift in Sources */,
 				5DF8094F2B2121F200036D23 /* MCSessionDetails.swift in Sources */,
 				5DF809942B22256700036D23 /* SessionListItem.swift in Sources */,
 			);
@@ -559,6 +583,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5DAA4CB62B2EB35600B588EE /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.9;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5DAA4CB72B2EB35600B588EE /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DAA4CB62B2EB35600B588EE /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5DF8092E2B21144200036D23 /* Project object */;
 }

@@ -14,7 +14,8 @@ class MCSessionManager: NSObject {
     private static let serviceType = "rrm-proxshare"
     private static let inviteTimeout: TimeInterval = 30
     
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "MultiPeerSession")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "MultiPeerSession")
+    private let fileStorageHelper = FileStorageHelper()
     
     private var session: MCSession?
     private var serviceAdvertiser: MCNearbyServiceAdvertiser?
@@ -43,7 +44,6 @@ class MCSessionManager: NSObject {
     private func startNewSession(user: MCUser, sessionName: String = "") {
         let peerID = MCPeerID(displayName: user.id)
         self.session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .none)
-        self.session!.delegate = self
         self.peerID = peerID
         self.localUser = user
         
@@ -54,14 +54,20 @@ class MCSessionManager: NSObject {
             self.sessionDetails = sessionDetails
         }
         self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: discoveryInfo, serviceType: Self.serviceType)
-        self.serviceAdvertiser!.delegate = self
-        
         self.serviceBrowser = MCNearbyServiceBrowser(peer: peerID, serviceType: Self.serviceType)
-        self.serviceBrowser!.delegate = self
+        
+        if let session = self.session, let serviceAdvertiser = self.serviceAdvertiser, let serviceBrowser = self.serviceBrowser {
+            session.delegate = self
+            serviceAdvertiser.delegate = self
+            serviceBrowser.delegate = self
+        } else {
+            self.logger.error("Error occured while starting session: Failed to initialize session, advertiser and browser")
+            self.resetSession()
+        }
     }
     
     // Function to reset session
-    private func resetSession() {
+    func resetSession() {
         self.stopBrowsing()
         self.stopAdvertising()
         self.sessionDetails = nil
@@ -177,51 +183,62 @@ class MCSessionManager: NSObject {
     }
     
     func sendIdentity() {
-        if let user = self.localUser, let sessionDetails = self.sessionDetails, let encodedUserDetails = JsonUtils.stringEncode(user) {
+        if let user = self.localUser, let encodedUserDetails = JsonUtils.stringEncode(user) {
             let event = MCEvent(
                 id: UUID().uuidString,
                 userID: user.id,
-                sessionID: sessionDetails.id,
                 type: .identity,
                 contentType: .json,
-                content: encodedUserDetails,
-                timestamp: Date())
+                content: encodedUserDetails)
             self.sendEvent(event)
         }
     }
     
     func sendMessage(_ content: String) -> String? {
-        if let user = self.localUser, let sessionDetails = self.sessionDetails {
+        if let user = self.localUser {
             let event = MCEvent(
                 id: UUID().uuidString,
                 userID: user.id,
-                sessionID: sessionDetails.id,
                 type: .message,
                 contentType: .message,
-                content: content,
-                timestamp: Date())
+                content: content)
             self.sendEvent(event)
             return event.id
         }
         return nil
     }
     
-    func sendResource(url: URL, name: String) -> [Progress]? {
-        var progresses: [Progress]? = nil
+    func sendResource(url: URL, name: String) {
         if let session = self.session, !session.connectedPeers.isEmpty {
-            progresses = [Progress]()
             for peer in session.connectedPeers {
-                let progress = session.sendResource(at: url, withName: name, toPeer: peer) { error in
+                session.sendResource(at: url, withName: name, toPeer: peer) { error in
                     if let error = error {
                         self.logger.error("Error sending the resource \(String(describing: error))")
                     }
-                    self.logger.debug("Queued sending resources successfully")
+                    if let lastPeer = session.connectedPeers.last, lastPeer.displayName == peer.displayName {
+                        self.logger.debug("Queued sending resources successfully")
+                        self.fileStorageHelper.deleteFile(url: url)
+                    }
                 }
-                progresses!.append(progress!)
             }
         }
-        print("Done initiating send resource")
-        return progresses
+        self.logger.info("Done initiating send resource")
+    }
+    
+    func sendImage(_ data: Data) -> String? {
+        if let user = self.localUser {
+            let event = MCEvent(
+                id: UUID().uuidString,
+                userID: user.id,
+                type: .message,
+                contentType: .image,
+                content: "")
+            if let encodedEvent = JsonUtils.stringEncode(event), let url = self.fileStorageHelper.writeDataToTemporaryFile(data: data, fileName: event.id) {
+                self.sendResource(url: url, name: encodedEvent)
+                return event.id
+            }
+        }
+        return nil
     }
 }
 
@@ -286,9 +303,9 @@ extension MCSessionManager: MCSessionDelegate {
         switch state {
         case .connected:
             self.sessionState = .connected
-            if !self.isLeader() && self.isInviteSent && peerID == self.tentativeSessionDetails?.leaderPeerID {
+            if let tentativeSessionDetails = self.tentativeSessionDetails, !self.isLeader() && self.isInviteSent && peerID == tentativeSessionDetails.leaderPeerID {
                 self.sessionDetails = tentativeSessionDetails
-                self.updates.send(MCEventUpdate(joinedSession: tentativeSessionDetails!))
+                self.updates.send(MCEventUpdate(joinedSession: tentativeSessionDetails))
                 self.cancelInvite()
             }
             self.sendIdentity()
@@ -301,8 +318,8 @@ extension MCSessionManager: MCSessionDelegate {
             } else if self.sessionState == .connected {
                 if let session = self.session, session.connectedPeers.isEmpty {
                     self.sessionState = .notConnected
-                    if !self.isLeader() {
-                        self.updates.send(MCEventUpdate(joinedSession: self.sessionDetails!, disconnect: true))
+                    if let sessionDetails = self.sessionDetails, !self.isLeader() {
+                        self.updates.send(MCEventUpdate(joinedSession: sessionDetails, disconnect: true))
                     }
                 }
             }
@@ -335,7 +352,9 @@ extension MCSessionManager: MCSessionDelegate {
     // Started receiving a resource from peer
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
         logger.debug("Started receiving resouce \(resourceName) from \(peerID.displayName)")
-        self.updates.send(MCEventUpdate(name: resourceName, progress: progress, userID: peerID.displayName, finished: false, url: nil))
+        if let event: MCEvent = JsonUtils.stringDecode(resourceName) {
+            self.updates.send(MCEventUpdate(id: event.id, userID: event.userID, contentType: event.contentType, progress: progress))
+        }
     }
     
     // Finished receiving a resource from peer
@@ -344,7 +363,16 @@ extension MCSessionManager: MCSessionDelegate {
         if let error = error {
             logger.error("Error finishing receiving resource \(resourceName) from \(peerID.displayName): \(String(describing: error))")
         } else {
-            self.updates.send(MCEventUpdate(name: resourceName, progress: nil, userID: peerID.displayName, finished: true, url: localURL))
+            do {
+                if let url = localURL {
+                    let data = try Data(contentsOf: url)
+                    if let event: MCEvent = JsonUtils.stringDecode(resourceName) {
+                        self.updates.send(MCEventUpdate(id: event.id, userID: event.userID, contentType: event.contentType, data: data))
+                    }
+                }
+            } catch {
+                logger.error("Error reading resource \(resourceName) from \(peerID.displayName): \(String(describing: error))")
+            }
         }
     }
     

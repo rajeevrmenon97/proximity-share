@@ -23,8 +23,8 @@ class MCSessionDetails {
     }
     
     init(discoveryInfo: [String: String], leaderPeerID: MCPeerID) {
-        self.id = discoveryInfo[Self.sessionIdKey]!
-        self.name = discoveryInfo[Self.sessionNameKey]!
+        self.id = discoveryInfo[Self.sessionIdKey] ?? ""
+        self.name = discoveryInfo[Self.sessionNameKey] ?? ""
         self.leaderPeerID = leaderPeerID
     }
     

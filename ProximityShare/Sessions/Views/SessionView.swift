@@ -30,7 +30,7 @@ struct SessionView: View {
             ScrollViewReader { scrollViewReader in
                 List {
                     ForEach(events) { event in
-                        ItemBubble(event: event, isSelfMessage: preferences.userID == event.user!.id)
+                        ItemBubble(event: event, isSelfMessage: preferences.userID == event.user?.id ?? "")
                             .id(event.id)
                             .listRowSeparator(.hidden)
                     }
@@ -57,15 +57,27 @@ struct SessionView: View {
                             } label: {
                                 Label("Photos", systemImage: "photo")
                             }
-                        }, label: {Label("", systemImage: "plus")})
-                        TextField("Type your message", text: $messageTextField)
-                            .textFieldStyle(.roundedBorder)
-                            .onSubmit {
-                                if !messageTextField.isEmpty {
-                                    sessionViewModel.sendMessage(messageTextField)
-                                    messageTextField = ""
-                                }
+                        }, label: {
+                            Label("", systemImage: "plus")
+                                .foregroundStyle(.secondary)
+                                .font(.title)
+                        })
+                        .foregroundStyle(.secondary)
+                        TextField("Type your message", text: $messageTextField, axis: .vertical)
+                            .frame(maxWidth: .infinity)
+                            .padding(6)
+                            .overlay{
+                                RoundedRectangle(cornerRadius: 10.0)
+                                    .strokeBorder(.secondary, style: StrokeStyle(lineWidth: 2.0))
                             }
+                            .onSubmit{
+                                sendMessage()
+                            }
+                        Button("", systemImage: "chevron.right.circle") {
+                            sendMessage()
+                        }
+                        .font(.title)
+                        .foregroundStyle(.secondary)
                     }
                 } else {
                     Text("Disconnected from chat")
@@ -80,8 +92,6 @@ struct SessionView: View {
                 if let data = try? await pickedImage?.loadTransferable(type: Data.self) {
                     sessionViewModel.sendImage(data)
                     pickedImage = nil
-                } else {
-                    print("Failed")
                 }
             }
         }
@@ -102,7 +112,13 @@ struct SessionView: View {
                 })
             }
         }
-
+    }
+    
+    func sendMessage() {
+        if !messageTextField.isEmpty {
+            sessionViewModel.sendMessage(messageTextField)
+            messageTextField = ""
+        }
     }
 }
 

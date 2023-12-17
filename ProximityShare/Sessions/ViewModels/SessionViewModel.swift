@@ -18,29 +18,16 @@ class SessionViewModel: ObservableObject {
     @Published var isInviteSent = false
     @Published var joinRequestUsers = [MCUser]()
     @Published var activeSession: SharingSession?
+    @Published var showToast = false
+    @Published var isToastError = false
+    @Published var toastMessage = ""
     
     private var sessionManager: MCSessionManager
     private var preferences: Preferences
     private var modelContext: ModelContext
     
-    private static let attachmentsDirectory: URL = {
-        do {
-            let path = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("attachments")
-            if !FileManager.default.fileExists(atPath: path.path) {
-                do {
-                    try FileManager.default.createDirectory(atPath: path.path, withIntermediateDirectories: true, attributes: nil)
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
-            return path
-        } catch {
-            fatalError("Cannot get document directory path")
-        }
-    }()
-    
     private var cancellables: Set<AnyCancellable> = []
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SessionViewModel")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "SessionViewModel")
     
     init(sessionManager: MCSessionManager, preferences: Preferences, modelContainer: ModelContainer) {
         self.sessionManager = sessionManager
@@ -55,30 +42,38 @@ class SessionViewModel: ObservableObject {
         self.logger.debug("DB location: \(appSupportDir.absoluteString)")
     }
     
+    func sendToast(message: String, isError: Bool) {
+        self.toastMessage = message
+        self.isToastError = isError
+        self.showToast = true
+    }
+    
     func handleUpdates(_ eventUpdate: MCEventUpdate) {
         switch eventUpdate.type {
         case .foundPeer:
             if let sessionDetails = eventUpdate.sessionDetails {
-                self.availableSessions.append(eventUpdate.sessionDetails!)
+                self.availableSessions.append(sessionDetails)
                 self.logger.debug("Session found: \(sessionDetails.name)")
             }
         case .lostPeer:
-            if let sessionDetails = eventUpdate.sessionDetails {
-                self.availableSessions.remove(at: self.availableSessions.firstIndex(where: {$0.id == sessionDetails.id})!)
+            if let sessionDetails = eventUpdate.sessionDetails, let index = self.availableSessions.firstIndex(where: {$0.id == sessionDetails.id}) {
+                self.availableSessions.remove(at: index)
                 self.logger.debug("Session lost: \(sessionDetails.name)")
             }
         case .receivedInvite:
             if let user = eventUpdate.user {
                 self.joinRequestUsers.append(user)
                 self.logger.debug("Received join request from \(user.name)")
+                self.sendToast(message: "New join request!", isError: false)
             }
         case .inviteExpired:
-            if let user = eventUpdate.user {
-                self.joinRequestUsers.remove(at: self.joinRequestUsers.firstIndex(where: {$0.id == eventUpdate.user!.id})!)
+            if let user = eventUpdate.user, let index = self.joinRequestUsers.firstIndex(where: {$0.id == user.id}) {
+                self.joinRequestUsers.remove(at: index)
                 self.logger.debug("Join request from \(user.name) expired")
             }
         case .inviteRejected:
             self.isInviteSent = false
+            self.sendToast(message: "Join request rejected!", isError: true)
         case .joinedSession:
             if let sessionDetails = eventUpdate.sessionDetails {
                 self.stopLookingForSessions()
@@ -86,6 +81,7 @@ class SessionViewModel: ObservableObject {
             }
         case .leftSession:
             self.logger.debug("Disconnected from session")
+            self.sendToast(message: "Disconnected from session \(self.activeSession?.name ?? "")", isError: true)
             self.activeSession = nil
         case .userUpdate:
             if let user = eventUpdate.user {
@@ -105,28 +101,20 @@ class SessionViewModel: ObservableObject {
                 self.addEvent(event, session: session, userID: user.id)
             }
         case .startedReceivingResource:
-            if let user = eventUpdate.user, let progress = eventUpdate.progress, let id = eventUpdate.content, let session = self.activeSession {
+            if let user = eventUpdate.user, let id = eventUpdate.id, let session = self.activeSession, let contentType = eventUpdate.contentType {
                 let event = SharingSessionEvent(
                     id: id,
                     type: .message,
                     user: nil,
                     session: nil,
-                    contentType: .fileURL,
+                    contentType: contentType,
                     content: "",
                     timestamp: Date())
-                event.progress = progress
                 self.addEvent(event, session: session, userID: user.id)
             }
         case .finishedReceivingResource:
-            if let url = eventUpdate.url, let id = eventUpdate.content, let event = self.getEvent(id) {
-                do {
-                    let data = try Data(contentsOf: url)
-                    _ = self.saveAttachment(data, fileName: id)
-                    event.content = id
-                    event.attachment = data
-                } catch {
-                    self.logger.error("Error receiving resource: \(String(describing: error))")
-                }
+            if let data = eventUpdate.data, let id = eventUpdate.id, let event = self.getEvent(id) {
+                event.attachment = data
             }
         }
     }
@@ -137,6 +125,7 @@ class SessionViewModel: ObservableObject {
             return result.first
         } catch {
             self.logger.error("Error while fetching event: \(String(describing: error))")
+            self.sendToast(message: "Error while fetching message details", isError: true)
         }
         return nil
     }
@@ -147,20 +136,32 @@ class SessionViewModel: ObservableObject {
             return result.first
         } catch {
             self.logger.error("Error while fetching session: \(String(describing: error))")
+            self.sendToast(message: "Error while fetching session details", isError: true)
         }
         return nil
     }
     
     func addSession(sessionDetails: MCSessionDetails) {
-        var session: SharingSession?
+        var session: SharingSession
         if let existingSession = self.getSession(sessionDetails.id) {
             session = existingSession
         } else {
             session = SharingSession(id: sessionDetails.id, name: sessionDetails.name)
-            self.modelContext.insert(session!)
+            self.modelContext.insert(session)
         }
-        self.activeSession = session!
-        self.navigationPath.append(session!.id)
+        self.activeSession = session
+        self.navigationPath.append(session.id)
+    }
+    
+    func deleteSession(_ sessionID: String) {
+        do {
+            try self.modelContext.delete(model: SharingSession.self, where: #Predicate { session in
+                session.id == sessionID
+            })
+        } catch {
+            self.logger.error("Error while deleting session: \(String(describing: error))")
+            self.sendToast(message: "Error while deleting session", isError: true)
+        }
     }
     
     func startNewSession(_ sessionName: String) {
@@ -169,6 +170,7 @@ class SessionViewModel: ObservableObject {
             self.addSession(sessionDetails: sessionDetails)
         } else {
             logger.error("Failed to get session details after starting to advertise")
+            self.sendToast(message: "Error while starting new session", isError: true)
         }
     }
     
@@ -213,6 +215,7 @@ class SessionViewModel: ObservableObject {
             return result.first
         } catch {
             self.logger.error("Error while fetching user: \(String(describing: error))")
+            self.sendToast(message: "Error while fetching user details", isError: true)
         }
         return nil
     }
@@ -238,40 +241,33 @@ class SessionViewModel: ObservableObject {
         }
     }
     
-    func loadAttachment(_ fileName: String) -> Data? {
-        do {
-            return try Data(contentsOf: Self.attachmentsDirectory.appendingPathComponent(fileName))
-        } catch {
-            self.logger.error("Error reading file \(fileName): \(String(describing: error))")
-        }
-        return nil
-    }
-    
-    func saveAttachment(_ data: Data, fileName: String = UUID().uuidString) -> String? {
-        do {
-            let savePath = Self.attachmentsDirectory.appendingPathComponent(fileName)
-            try data.write(to: savePath, options: [.atomic, .completeFileProtection])
-            return fileName
-        } catch {
-            self.logger.error("Error writing file: \(String(describing: error))")
-        }
-        return nil
-    }
-    
     func sendImage(_ data: Data) {
-        let eventID = UUID().uuidString
-        if let session = self.activeSession, let fileName = self.saveAttachment(data) {
-            _ = self.sessionManager.sendResource(url: Self.attachmentsDirectory.appendingPathComponent(fileName), name: fileName)
+        if let session = self.activeSession, let id = self.sessionManager.sendImage(data) {
             let event = SharingSessionEvent(
-                id: eventID,
+                id: id,
                 type: .message,
                 user: nil,
                 session: nil,
-                contentType: .fileURL,
-                content: fileName,
+                contentType: .image,
+                content: "",
                 timestamp: Date())
             event.attachment = data
             self.addEvent(event, session: session, userID: preferences.userID)
+        }
+    }
+    
+    func deleteData() {
+        do {
+            self.sessionManager.resetSession()
+            self.navigationPath.removeAll()
+            try modelContext.delete(model: SharingSessionEvent.self)
+            try modelContext.delete(model: User.self)
+            try modelContext.delete(model: SharingSession.self)
+            let user = User(id: preferences.userID, name: preferences.userDisplayName, aboutMe: preferences.userAboutMe)
+            modelContext.insert(user)
+        } catch {
+            logger.error("Error while deleting data: \(String(describing: error))")
+            self.sendToast(message: "Error while deleting data", isError: true)
         }
     }
 }

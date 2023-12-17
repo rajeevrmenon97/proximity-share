@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct SessionSearchView: View {
     @EnvironmentObject var sessionViewModel: SessionViewModel
@@ -43,6 +44,13 @@ struct SessionSearchView: View {
             }
             .navigationTitle("Join chat")
             .navigationBarTitleDisplayMode(.inline)
+            .toast(isPresenting: $sessionViewModel.showToast, duration: 2, tapToDismiss: true, alert: {
+                AlertToast(
+                    displayMode: .banner(.pop),
+                    type: sessionViewModel.isToastError ? .error(Color.red) : .systemImage("info.circle", .primary),
+                    title: sessionViewModel.toastMessage,
+                    style: .style(titleFont: .body))
+            })
         }
     }
 }

@@ -7,6 +7,8 @@
 
 import SwiftUI
 import os
+import SwiftData
+import AlertToast
 
 struct SettingsView: View {
     
@@ -15,8 +17,11 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     
     @State var deleteDataAlert = false
+    @State var showDeleteDataToast = false
     
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SettingsView")
+    @Query var sessions: [SharingSession]
+    
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ProximtyShare", category: "SettingsView")
     
     var body: some View {
         NavigationStack {
@@ -52,6 +57,8 @@ struct SettingsView: View {
                             Label("Delete all data", systemImage: "trash.fill")
                                 .foregroundColor(.red)
                         })
+                        .disabled(sessions.isEmpty)
+                        .opacity(sessions.isEmpty ? 0.3 : 1)
                     }
                 }
                 
@@ -59,13 +66,28 @@ struct SettingsView: View {
                     CustomAlertView(title: "Delete data", description: "Are you sure?", cancelAction: {
                         toggleDeleteDataAlert()
                     }, cancelActionTitle: "Cancel", primaryAction: {
-                        deleteData()
+                        self.sessionViewModel.deleteData()
                         toggleDeleteDataAlert()
+                        showDeleteDataToast = true
                     }, primaryActionTitle: "Yes")
                 }
             }
             .navigationTitle("Settings")
         }
+        .toast(isPresenting: $showDeleteDataToast, duration: 1, tapToDismiss: true, alert: {
+            AlertToast(
+                displayMode: .alert,
+                type: .complete(Color.green),
+                title: "Success!",
+                style: .style(titleFont: .body))
+        })
+        .toast(isPresenting: $sessionViewModel.showToast, duration: 2, tapToDismiss: true, alert: {
+            AlertToast(
+                displayMode: .banner(.pop),
+                type: sessionViewModel.isToastError ? .error(Color.red) : .systemImage("info.circle", .primary),
+                title: sessionViewModel.toastMessage,
+                style: .style(titleFont: .body))
+        })
         
     }
     
@@ -74,31 +96,9 @@ struct SettingsView: View {
             deleteDataAlert.toggle()
         }
     }
-    
-    func deleteData() {
-        do {
-            sessionViewModel.navigationPath.removeAll()
-            try modelContext.delete(model: SharingSessionEvent.self)
-            try modelContext.delete(model: User.self)
-            try modelContext.delete(model: SharingSession.self)
-            let user = User(id: preferences.userID,
-                            name: preferences.userDisplayName,
-                            aboutMe: preferences.userAboutMe)
-            modelContext.insert(user)
-            
-            let path = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("attachments")
-            let fileURLs = try FileManager.default.contentsOfDirectory(at: path, includingPropertiesForKeys: nil,  options: .skipsHiddenFiles)
-            for fileURL in fileURLs {
-                try FileManager.default.removeItem(at: fileURL)
-            }
-        } catch {
-            logger.error("Error while deleting data: \(String(describing: error))")
-        }
-    }
 }
 
 #Preview {
-    SettingsView()
-        .environmentObject(Preferences())
+    contentViewPreview
 }
 
